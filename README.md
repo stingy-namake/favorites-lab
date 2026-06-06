@@ -54,6 +54,16 @@ docker compose up --build
 | GET | /api/favorites | List my favorites |
 | DELETE | /api/favorites/:product_id | Remove favorite |
 
+### Cart (require `Authorization: Bearer <token>`)
+
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | /api/cart | List cart items |
+| POST | /api/cart | Add item `{ product_id, quantity }` |
+| PATCH | /api/cart/:product_id | Update quantity `{ quantity }` |
+| DELETE | /api/cart/:product_id | Remove item |
+| DELETE | /api/cart | Clear entire cart |
+
 ## Project Structure
 
 ```
@@ -66,7 +76,8 @@ docker compose up --build
 │   │   ├── routes/
 │   │   │   ├── auth.js              # Register, login, me
 │   │   │   ├── products.js          # Proxy to Fake Store API
-│   │   │   └── favorites.js         # Favorites CRUD (auth)
+│   │   │   ├── favorites.js         # Favorites CRUD (auth)
+│   │   │   └── cart.js              # Cart CRUD (auth)
 │   │   └── services/fakestore.js
 │   └── Dockerfile
 ├── frontend/

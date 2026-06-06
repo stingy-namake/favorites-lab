@@ -8,6 +8,7 @@ let currentPage = 1;
 const PER_PAGE = 8;
 let token = localStorage.getItem('token') || null;
 let user = null;
+let cartItems = [];
 
 // --- DOM refs ---
 const $ = id => document.getElementById(id);
@@ -18,10 +19,13 @@ const sections = {
 
 // --- Init ---
 restoreSession();
+loadTheme();
 loadCategories();
 loadProducts();
 setupTabs();
 setupAuthModal();
+setupCart();
+setupTheme();
 
 // --- Session ---
 function restoreSession() {
@@ -30,21 +34,19 @@ function restoreSession() {
 }
 
 function saveSession(t, u) {
-  token = t;
-  user = u;
+  token = t; user = u;
   localStorage.setItem('token', t);
   renderAuth();
+  loadCart();
 }
 
 function clearSession() {
-  token = null;
-  user = null;
+  token = null; user = null;
   localStorage.removeItem('token');
   renderAuth();
-  // if on favorites tab, switch to home
-  if ($('section-favorites').classList.contains('active')) {
-    switchTab('home');
-  }
+  cartItems = [];
+  renderCartBadge();
+  if ($('section-favorites').classList.contains('active')) switchTab('home');
 }
 
 async function fetchUser() {
@@ -55,9 +57,8 @@ async function fetchUser() {
     if (!res.ok) throw new Error('expired');
     user = await res.json();
     renderAuth();
-  } catch {
-    clearSession();
-  }
+    loadCart();
+  } catch { clearSession(); }
 }
 
 function renderAuth() {
@@ -80,10 +81,7 @@ function setupTabs() {
     link.addEventListener('click', e => {
       e.preventDefault();
       const tab = link.dataset.tab;
-      if (tab === 'favorites' && !user) {
-        openAuthModal();
-        return;
-      }
+      if (tab === 'favorites' && !user) { openAuthModal(); return; }
       switchTab(tab);
     });
   });
@@ -97,15 +95,13 @@ function switchTab(tab) {
   if (tab === 'favorites') loadFavorites();
 }
 
-// --- Products (client-side pagination + category filter) ---
+// --- Products ---
 async function loadProducts() {
   try {
     const res = await fetch(`${API}/products`);
     allProducts = await res.json();
     renderProducts();
-  } catch {
-    $('products-grid').innerHTML = '<div class="empty-state">Failed to load products</div>';
-  }
+  } catch { $('products-grid').innerHTML = '<div class="empty-state">Failed to load products</div>'; }
 }
 
 async function loadCategories() {
@@ -119,9 +115,7 @@ async function loadCategories() {
 function renderCategories() {
   const container = $('category-filters');
   container.innerHTML = '<button class="chip active" data-cat="all">All</button>' +
-    categories.map(c =>
-      `<button class="chip" data-cat="${c}">${c}</button>`
-    ).join('');
+    categories.map(c => `<button class="chip" data-cat="${c}">${c}</button>`).join('');
   container.querySelectorAll('.chip').forEach(chip => {
     chip.addEventListener('click', () => {
       container.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
@@ -159,20 +153,20 @@ function renderProducts() {
       <div class="product-card">
         <div class="product-img-wrap">
           <img src="${p.image}" alt="${p.title}" loading="lazy">
-          <button class="fav-btn ${user ? '' : 'fav-guest'}" data-id="${p.id}" title="Add to favorites">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          <button class="fav-btn" data-id="${p.id}" title="Add to favorites">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
           </button>
         </div>
         <div class="product-body">
           <h3>${p.title}</h3>
           <div class="rating-row">${stars} <span class="review-count">${reviewCount}</span></div>
           <div class="price">$${p.price.toFixed(2)}</div>
+          <button class="add-cart-btn" data-id="${p.id}">Add to Cart</button>
         </div>
       </div>
     `;
   }).join('');
 
-  // Attach fav button listeners
   grid.querySelectorAll('.fav-btn').forEach(btn => {
     btn.addEventListener('click', async () => {
       if (!user) { openAuthModal(); return; }
@@ -183,15 +177,26 @@ function renderProducts() {
           headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
           body: JSON.stringify({ product_id: pid }),
         });
-        if (!res.ok) {
-          const err = await res.json();
-          showToast(err.error || 'Failed', 'error');
-          return;
-        }
+        if (!res.ok) { const err = await res.json(); showToast(err.error || 'Failed', 'error'); return; }
         showToast('Added to favorites!', 'success');
-      } catch {
-        showToast('Error adding favorite', 'error');
-      }
+      } catch { showToast('Error adding favorite', 'error'); }
+    });
+  });
+
+  grid.querySelectorAll('.add-cart-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      if (!user) { openAuthModal(); return; }
+      const pid = Number(btn.dataset.id);
+      try {
+        const res = await fetch(`${API}/cart`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+          body: JSON.stringify({ product_id: pid, quantity: 1 }),
+        });
+        if (!res.ok) { const err = await res.json(); showToast(err.error || 'Failed', 'error'); return; }
+        showToast('Added to cart!', 'success');
+        loadCart();
+      } catch { showToast('Error adding to cart', 'error'); }
     });
   });
 
@@ -241,9 +246,7 @@ async function loadFavorites() {
     if (!res.ok) throw new Error('fail');
     const data = await res.json();
     renderFavorites(data);
-  } catch {
-    container.innerHTML = '<div class="empty-state">Failed to load favorites.</div>';
-  }
+  } catch { container.innerHTML = '<div class="empty-state">Failed to load favorites.</div>'; }
 }
 
 function renderFavorites(data) {
@@ -257,9 +260,7 @@ function renderFavorites(data) {
     const stars = r ? renderStars(r.rate) : '';
     return `
       <div class="fav-item">
-        <div class="fav-img-wrap">
-          <img src="${f.image}" alt="${f.title}" loading="lazy">
-        </div>
+        <div class="fav-img-wrap"><img src="${f.image}" alt="${f.title}" loading="lazy"></div>
         <div class="fav-info">
           <h3>${f.title}</h3>
           <div class="rating-row">${stars}</div>
@@ -275,29 +276,147 @@ function renderFavorites(data) {
     btn.addEventListener('click', async () => {
       const pid = Number(btn.dataset.id);
       try {
-        await fetch(`${API}/favorites/${pid}`, {
-          method: 'DELETE',
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        await fetch(`${API}/favorites/${pid}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } });
         loadFavorites();
         showToast('Favorite removed', 'success');
-      } catch {
-        showToast('Error removing favorite', 'error');
-      }
+      } catch { showToast('Error removing favorite', 'error'); }
     });
   });
+}
+
+// --- Cart ---
+function setupCart() {
+  $('cart-btn').addEventListener('click', openCart);
+  $('cart-close').addEventListener('click', closeCart);
+  $('cart-overlay').addEventListener('click', closeCart);
+  $('cart-clear').addEventListener('click', clearCart);
+}
+
+async function loadCart() {
+  if (!user) { cartItems = []; renderCartBadge(); return; }
+  try {
+    const res = await fetch(`${API}/cart`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!res.ok) throw new Error('fail');
+    cartItems = await res.json();
+    renderCartBadge();
+    if (!$('cart-drawer').classList.contains('hidden')) renderCartDrawer();
+  } catch { cartItems = []; renderCartBadge(); }
+}
+
+function renderCartBadge() {
+  const badge = $('cart-count');
+  const count = cartItems.reduce((s, i) => s + i.quantity, 0);
+  if (count > 0) { badge.textContent = count; badge.classList.remove('hidden'); }
+  else badge.classList.add('hidden');
+}
+
+function openCart() { 
+  $('cart-overlay').classList.remove('hidden');
+  $('cart-drawer').classList.remove('hidden');
+  renderCartDrawer();
+  setTimeout(() => {
+    $('cart-overlay').classList.add('open');
+    $('cart-drawer').classList.add('open');
+  }, 10);
+  document.body.style.overflow = 'hidden';
+}
+
+function closeCart() {
+  $('cart-overlay').classList.remove('open');
+  $('cart-drawer').classList.remove('open');
+  setTimeout(() => {
+    $('cart-overlay').classList.add('hidden');
+    $('cart-drawer').classList.add('hidden');
+    document.body.style.overflow = '';
+  }, 300);
+}
+
+function renderCartDrawer() {
+  const body = $('cart-body');
+  if (cartItems.length === 0) {
+    body.innerHTML = '<div class="cart-empty">Your cart is empty.</div>';
+    $('cart-total').textContent = '$0.00';
+    return;
+  }
+  body.innerHTML = cartItems.map(item => `
+    <div class="cart-item">
+      <div class="cart-item-img"><img src="${item.image}" alt="${item.title}" loading="lazy"></div>
+      <div class="cart-item-info">
+        <h4>${item.title}</h4>
+        <div class="cart-item-price">$${(item.price * item.quantity).toFixed(2)}</div>
+        <div class="cart-qty">
+          <button class="qty-btn" data-pid="${item.product_id}" data-dir="-1">−</button>
+          <span class="qty-value">${item.quantity}</span>
+          <button class="qty-btn" data-pid="${item.product_id}" data-dir="1">+</button>
+          <button class="cart-item-remove" data-pid="${item.product_id}" title="Remove">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+
+  const total = cartItems.reduce((s, i) => s + i.price * i.quantity, 0);
+  $('cart-total').textContent = `$${total.toFixed(2)}`;
+
+  body.querySelectorAll('.qty-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const pid = Number(btn.dataset.pid);
+      const dir = Number(btn.dataset.dir);
+      const item = cartItems.find(i => i.product_id === pid);
+      if (!item) return;
+      const newQty = item.quantity + dir;
+      if (newQty < 1) { removeCartItem(pid); return; }
+      try {
+        await fetch(`${API}/cart/${pid}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+          body: JSON.stringify({ quantity: newQty }),
+        });
+        loadCart();
+      } catch { showToast('Error updating quantity', 'error'); }
+    });
+  });
+
+  body.querySelectorAll('.cart-item-remove').forEach(btn => {
+    btn.addEventListener('click', () => removeCartItem(Number(btn.dataset.pid)));
+  });
+}
+
+async function removeCartItem(productId) {
+  try {
+    await fetch(`${API}/cart/${productId}`, {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    showToast('Item removed from cart', 'success');
+    loadCart();
+  } catch { showToast('Error removing item', 'error'); }
+}
+
+async function clearCart() {
+  if (!confirm('Clear your entire cart?')) return;
+  try {
+    await fetch(`${API}/cart`, {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    showToast('Cart cleared', 'success');
+    loadCart();
+    closeCart();
+  } catch { showToast('Error clearing cart', 'error'); }
 }
 
 // --- Auth Modal ---
 function setupAuthModal() {
   const modal = $('auth-modal');
   const close = modal.querySelector('.modal-close');
-
   $('login-btn').addEventListener('click', openAuthModal);
   close.addEventListener('click', closeAuthModal);
   modal.addEventListener('click', e => { if (e.target === modal) closeAuthModal(); });
 
-  // Tab switching
   modal.querySelectorAll('.modal-tab').forEach(tab => {
     tab.addEventListener('click', () => {
       modal.querySelectorAll('.modal-tab').forEach(t => t.classList.remove('active'));
@@ -308,7 +427,6 @@ function setupAuthModal() {
     });
   });
 
-  // Login
   $('login-form').addEventListener('submit', async e => {
     e.preventDefault();
     const fd = new FormData(e.target);
@@ -326,11 +444,10 @@ function setupAuthModal() {
       const d = await res.json();
       saveSession(d.token, d.user);
       closeAuthModal();
-      showToast('Signed in successfully!', 'success');
+      showToast('Signed in!', 'success');
     } catch { errEl.textContent = 'Connection error'; }
   });
 
-  // Register
   $('register-form').addEventListener('submit', async e => {
     e.preventDefault();
     const fd = new FormData(e.target);
@@ -353,26 +470,47 @@ function setupAuthModal() {
     } catch { errEl.textContent = 'Connection error'; }
   });
 
-  // Logout
   $('logout-btn').addEventListener('click', () => {
     clearSession();
+    closeCart();
     showToast('Signed out', 'info');
   });
 }
 
 function openAuthModal() {
-  // Reset
   $('login-form').reset();
   $('register-form').reset();
   $('login-error').textContent = '';
   $('register-error').textContent = '';
   $('auth-modal').classList.remove('hidden');
   document.body.style.overflow = 'hidden';
+  // switch to login tab
+  $('auth-modal').querySelectorAll('.modal-tab').forEach(t => t.classList.remove('active'));
+  $('auth-modal').querySelector('[data-form="login"]').classList.add('active');
+  $('login-form').style.display = 'block';
+  $('register-form').style.display = 'none';
 }
 
 function closeAuthModal() {
   $('auth-modal').classList.add('hidden');
   document.body.style.overflow = '';
+}
+
+// --- Theme ---
+function setupTheme() {
+  $('theme-btn').addEventListener('click', toggleTheme);
+}
+
+function loadTheme() {
+  const saved = localStorage.getItem('theme');
+  if (saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+    document.body.classList.add('dark');
+  }
+}
+
+function toggleTheme() {
+  document.body.classList.toggle('dark');
+  localStorage.setItem('theme', document.body.classList.contains('dark') ? 'dark' : 'light');
 }
 
 // --- Toast ---
@@ -388,3 +526,6 @@ function showToast(msg, type = 'info') {
     setTimeout(() => el.remove(), 300);
   }, 3000);
 }
+
+// --- Init ---
+loadProducts();
