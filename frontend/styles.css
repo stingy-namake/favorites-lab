@@ -343,6 +343,20 @@ h2 { font-size: 1.5rem; font-weight: 700; margin-bottom: 0.3rem; }
 
 .price { font-size: 1.1rem; font-weight: 700; color: var(--accent); margin-bottom: 0.5rem; }
 
+.fav-btn.fav-active { background: var(--accent); color: #fff; }
+
+.in-cart {
+  border-color: #2dce89 !important;
+  color: #2dce89 !important;
+  background: transparent !important;
+  cursor: pointer;
+}
+
+.in-cart:hover {
+  background: #2dce89 !important;
+  color: #fff !important;
+}
+
 .add-cart-btn {
   width: 100%;
   padding: 0.5rem;
@@ -738,13 +752,17 @@ h2 { font-size: 1.5rem; font-weight: 700; margin-bottom: 0.3rem; }
 
 /* --- Footer --- */
 footer {
-  background: var(--text);
-  color: var(--text-secondary);
+  background: #1d1d1f;
+  color: #888;
   text-align: center;
   padding: 1.2rem;
   font-size: 0.82rem;
   margin-top: auto;
-  transition: background 0.3s;
+}
+
+body.dark footer {
+  background: #0d0d16;
+  color: #555;
 }
 
 /* --- Responsive --- */

@@ -9,6 +9,7 @@ const PER_PAGE = 8;
 let token = localStorage.getItem('token') || null;
 let user = null;
 let cartItems = [];
+let favoritedIds = new Set();
 
 // --- DOM refs ---
 const $ = id => document.getElementById(id);
@@ -38,6 +39,7 @@ function saveSession(t, u) {
   localStorage.setItem('token', t);
   renderAuth();
   loadCart();
+  loadFavoritedIds();
 }
 
 function clearSession() {
@@ -45,7 +47,9 @@ function clearSession() {
   localStorage.removeItem('token');
   renderAuth();
   cartItems = [];
+  favoritedIds = new Set();
   renderCartBadge();
+  renderProducts();
   if ($('section-favorites').classList.contains('active')) switchTab('home');
 }
 
@@ -58,6 +62,7 @@ async function fetchUser() {
     user = await res.json();
     renderAuth();
     loadCart();
+    loadFavoritedIds();
   } catch { clearSession(); }
 }
 
@@ -149,19 +154,22 @@ function renderProducts() {
     const r = p.rating;
     const stars = r ? renderStars(r.rate) : '';
     const reviewCount = r ? `(${r.count})` : '';
+    const inCart = cartItems.some(i => i.product_id === p.id);
+    const isFav = favoritedIds.has(p.id);
+    const heartFill = isFav ? 'currentColor' : 'none';
     return `
       <div class="product-card">
         <div class="product-img-wrap">
           <img src="${p.image}" alt="${p.title}" loading="lazy">
-          <button class="fav-btn" data-id="${p.id}" title="Add to favorites">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          <button class="fav-btn ${isFav ? 'fav-active' : ''}" data-id="${p.id}" title="${isFav ? 'Remove from favorites' : 'Add to favorites'}">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="${heartFill}" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
           </button>
         </div>
         <div class="product-body">
           <h3>${p.title}</h3>
           <div class="rating-row">${stars} <span class="review-count">${reviewCount}</span></div>
           <div class="price">$${p.price.toFixed(2)}</div>
-          <button class="add-cart-btn" data-id="${p.id}">Add to Cart</button>
+          <button class="add-cart-btn ${inCart ? 'in-cart' : ''}" data-id="${p.id}">${inCart ? 'In Cart' : 'Add to Cart'}</button>
         </div>
       </div>
     `;
@@ -171,15 +179,45 @@ function renderProducts() {
     btn.addEventListener('click', async () => {
       if (!user) { openAuthModal(); return; }
       const pid = Number(btn.dataset.id);
+      const wasFav = favoritedIds.has(pid);
+      // optimistic toggle
+      if (wasFav) {
+        favoritedIds.delete(pid);
+        btn.classList.remove('fav-active');
+        btn.querySelector('svg').setAttribute('fill', 'none');
+        btn.title = 'Add to favorites';
+      } else {
+        favoritedIds.add(pid);
+        btn.classList.add('fav-active');
+        btn.querySelector('svg').setAttribute('fill', 'currentColor');
+        btn.title = 'Remove from favorites';
+      }
       try {
-        const res = await fetch(`${API}/favorites`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-          body: JSON.stringify({ product_id: pid }),
-        });
-        if (!res.ok) { const err = await res.json(); showToast(err.error || 'Failed', 'error'); return; }
-        showToast('Added to favorites!', 'success');
-      } catch { showToast('Error adding favorite', 'error'); }
+        if (wasFav) {
+          await fetch(`${API}/favorites/${pid}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } });
+          showToast('Removed from favorites', 'success');
+        } else {
+          const res = await fetch(`${API}/favorites`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+            body: JSON.stringify({ product_id: pid }),
+          });
+          if (!res.ok) throw new Error((await res.json()).error);
+          showToast('Added to favorites!', 'success');
+        }
+      } catch {
+        // revert
+        if (wasFav) {
+          favoritedIds.add(pid);
+          btn.classList.add('fav-active');
+          btn.querySelector('svg').setAttribute('fill', 'currentColor');
+        } else {
+          favoritedIds.delete(pid);
+          btn.classList.remove('fav-active');
+          btn.querySelector('svg').setAttribute('fill', 'none');
+        }
+        showToast('Error toggling favorite', 'error');
+      }
     });
   });
 
@@ -187,6 +225,8 @@ function renderProducts() {
     btn.addEventListener('click', async () => {
       if (!user) { openAuthModal(); return; }
       const pid = Number(btn.dataset.id);
+      const alreadyInCart = cartItems.some(i => i.product_id === pid);
+      if (alreadyInCart) { openCart(); return; }
       try {
         const res = await fetch(`${API}/cart`, {
           method: 'POST',
@@ -195,7 +235,10 @@ function renderProducts() {
         });
         if (!res.ok) { const err = await res.json(); showToast(err.error || 'Failed', 'error'); return; }
         showToast('Added to cart!', 'success');
-        loadCart();
+        await loadCart();
+        // update this button
+        btn.textContent = 'In Cart';
+        btn.classList.add('in-cart');
       } catch { showToast('Error adding to cart', 'error'); }
     });
   });
@@ -293,7 +336,7 @@ function setupCart() {
 }
 
 async function loadCart() {
-  if (!user) { cartItems = []; renderCartBadge(); return; }
+  if (!user) { cartItems = []; renderCartBadge(); renderProducts(); return; }
   try {
     const res = await fetch(`${API}/cart`, {
       headers: { Authorization: `Bearer ${token}` },
@@ -301,8 +344,22 @@ async function loadCart() {
     if (!res.ok) throw new Error('fail');
     cartItems = await res.json();
     renderCartBadge();
+    renderProducts();
     if (!$('cart-drawer').classList.contains('hidden')) renderCartDrawer();
-  } catch { cartItems = []; renderCartBadge(); }
+  } catch { cartItems = []; renderCartBadge(); renderProducts(); }
+}
+
+async function loadFavoritedIds() {
+  if (!user) { favoritedIds = new Set(); return; }
+  try {
+    const res = await fetch(`${API}/favorites`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!res.ok) throw new Error('fail');
+    const data = await res.json();
+    favoritedIds = new Set(data.map(f => f.id));
+    renderProducts();
+  } catch { favoritedIds = new Set(); }
 }
 
 function renderCartBadge() {
