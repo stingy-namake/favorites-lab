@@ -1,7 +1,7 @@
 const API = '/api';
 
-let clientes = [];
-let produtos = [];
+let customers = [];
+let products = [];
 let editingId = null;
 
 // --- Tab Navigation ---
@@ -11,207 +11,251 @@ document.querySelectorAll('.tab').forEach(tab => {
     tab.classList.add('active');
     document.querySelectorAll('.tab-content').forEach(s => s.classList.remove('active'));
     document.getElementById(`section-${tab.dataset.tab}`).classList.add('active');
-    if (tab.dataset.tab === 'produtos') loadProdutos();
-    if (tab.dataset.tab === 'favoritos') loadClientesSelect('favoritos-cliente-select');
+    if (tab.dataset.tab === 'products') loadProducts();
+    if (tab.dataset.tab === 'favorites') populateCustomerSelect('favorites-customer-select');
   });
 });
 
-// --- Clientes ---
-document.getElementById('cliente-form').addEventListener('submit', async (e) => {
+// --- Customers ---
+document.getElementById('customer-form').addEventListener('submit', async (e) => {
   e.preventDefault();
-  const nome = document.getElementById('cliente-nome').value;
-  const email = document.getElementById('cliente-email').value;
+  const name = document.getElementById('customer-name').value;
+  const email = document.getElementById('customer-email').value;
 
   try {
     if (editingId) {
-      await fetch(`${API}/clientes/${editingId}`, {
+      const res = await fetch(`${API}/customers/${editingId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nome, email }),
+        body: JSON.stringify({ name, email }),
       });
+      if (!res.ok) {
+        const err = await res.json();
+        showToast(err.error || 'Update failed', 'error');
+        return;
+      }
     } else {
-      await fetch(`${API}/clientes`, {
+      const res = await fetch(`${API}/customers`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nome, email }),
+        body: JSON.stringify({ name, email }),
       });
+      if (!res.ok) {
+        const err = await res.json();
+        showToast(err.error || 'Create failed', 'error');
+        return;
+      }
     }
     resetForm();
-    loadClientes();
+    loadCustomers();
+    showToast('Customer saved', 'success');
   } catch (err) {
-    alert('Erro ao salvar cliente');
+    showToast('Error saving customer', 'error');
   }
 });
 
-document.getElementById('cliente-cancel').addEventListener('click', resetForm);
+document.getElementById('customer-cancel').addEventListener('click', resetForm);
 
 function resetForm() {
-  document.getElementById('cliente-form').reset();
-  document.getElementById('cliente-id').value = '';
+  document.getElementById('customer-form').reset();
+  document.getElementById('customer-id').value = '';
   editingId = null;
-  document.getElementById('cliente-cancel').style.display = 'none';
+  document.getElementById('customer-cancel').style.display = 'none';
 }
 
-async function loadClientes() {
+async function loadCustomers() {
   try {
-    const res = await fetch(`${API}/clientes`);
-    clientes = await res.json();
-    renderClientes(clientes);
-    populateClienteSelects();
+    const res = await fetch(`${API}/customers`);
+    customers = await res.json();
+    renderCustomers(customers);
+    populateCustomerSelects();
   } catch (err) {
-    console.error('Erro ao carregar clientes', err);
+    console.error('Error loading customers', err);
   }
 }
 
-function renderClientes(data) {
-  const tbody = document.getElementById('clientes-list');
+function renderCustomers(data) {
+  const tbody = document.getElementById('customers-list');
   if (data.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="4" class="empty-state">Nenhum cliente cadastrado</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="4" class="empty-state">No customers registered</td></tr>';
     return;
   }
   tbody.innerHTML = data.map(c => `
     <tr>
       <td>${c.id}</td>
-      <td>${c.nome}</td>
+      <td>${c.name}</td>
       <td>${c.email}</td>
-      <td>
-        <button class="btn-small" onclick="editCliente(${c.id}, '${c.nome.replace(/'/g, "\\'")}', '${c.email.replace(/'/g, "\\'")}')">Editar</button>
-        <button class="btn-danger" onclick="deleteCliente(${c.id})">Remover</button>
+      <td class="actions-cell">
+        <button class="btn-small" onclick="editCustomer(${c.id}, '${c.name.replace(/'/g, "\\'")}', '${c.email.replace(/'/g, "\\'")}')">Edit</button>
+        <button class="btn-danger" onclick="deleteCustomer(${c.id})">Delete</button>
       </td>
     </tr>
   `).join('');
 }
 
-async function deleteCliente(id) {
-  if (!confirm('Remover este cliente?')) return;
+async function deleteCustomer(id) {
+  if (!confirm('Delete this customer?')) return;
   try {
-    await fetch(`${API}/clientes/${id}`, { method: 'DELETE' });
-    loadClientes();
+    await fetch(`${API}/customers/${id}`, { method: 'DELETE' });
+    loadCustomers();
+    showToast('Customer deleted', 'success');
   } catch (err) {
-    alert('Erro ao remover cliente');
+    showToast('Error deleting customer', 'error');
   }
 }
 
-function editCliente(id, nome, email) {
+function editCustomer(id, name, email) {
   editingId = id;
-  document.getElementById('cliente-id').value = id;
-  document.getElementById('cliente-nome').value = nome;
-  document.getElementById('cliente-email').value = email;
-  document.getElementById('cliente-cancel').style.display = 'inline-block';
+  document.getElementById('customer-id').value = id;
+  document.getElementById('customer-name').value = name;
+  document.getElementById('customer-email').value = email;
+  document.getElementById('customer-cancel').style.display = 'inline-block';
 }
 
-function populateClienteSelects() {
-  const selects = ['produto-cliente-select', 'favoritos-cliente-select'];
+function populateCustomerSelects() {
+  const selects = ['product-customer-select', 'favorites-customer-select'];
   selects.forEach(id => {
     const sel = document.getElementById(id);
+    if (!sel) return;
     const current = sel.value;
-    sel.innerHTML = '<option value="">Selecione um cliente</option>' +
-      clientes.map(c => `<option value="${c.id}" ${c.id == current ? 'selected' : ''}>${c.nome}</option>`).join('');
+    sel.innerHTML = '<option value="">Select a customer</option>' +
+      customers.map(c => `<option value="${c.id}" ${c.id == current ? 'selected' : ''}>${c.name}</option>`).join('');
   });
 }
 
-function loadClientesSelect(selectId) {
+function populateCustomerSelect(selectId) {
   const sel = document.getElementById(selectId);
-  sel.innerHTML = '<option value="">Selecione um cliente</option>' +
-    clientes.map(c => `<option value="${c.id}">${c.nome}</option>`).join('');
+  if (!sel) return;
+  sel.innerHTML = '<option value="">Select a customer</option>' +
+    customers.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
 }
 
-// --- Produtos ---
-async function loadProdutos() {
+// --- Products ---
+async function loadProducts() {
+  const grid = document.getElementById('products-grid');
+  grid.innerHTML = '<div class="loading">Loading products...</div>';
   try {
     const res = await fetch('https://fakestoreapi.com/products');
-    produtos = await res.json();
-    renderProdutos(produtos);
+    products = await res.json();
+    renderProducts(products);
   } catch (err) {
-    console.error('Erro ao carregar produtos', err);
+    grid.innerHTML = '<div class="empty-state">Failed to load products</div>';
   }
 }
 
-function renderProdutos(data) {
-  const grid = document.getElementById('produtos-grid');
+function renderProducts(data) {
+  const grid = document.getElementById('products-grid');
   grid.innerHTML = data.map(p => {
-    const rating = p.rating ? `${p.rating.rate} (${p.rating.count} avaliações)` : 'Sem avaliação';
+    const rating = p.rating
+      ? `${p.rating.rate} (${p.rating.count} reviews)`
+      : 'No ratings';
     return `
       <div class="product-card">
-        <img src="${p.image}" alt="${p.title}" loading="lazy">
-        <h3>${p.title}</h3>
-        <div class="price">$${p.price.toFixed(2)}</div>
-        <div class="rating">${rating}</div>
-        <button onclick="addFavorito(${p.id})">Adicionar aos Favoritos</button>
+        <div class="product-img-wrap">
+          <img src="${p.image}" alt="${p.title}" loading="lazy">
+        </div>
+        <div class="product-body">
+          <h3>${p.title}</h3>
+          <div class="price">$${p.price.toFixed(2)}</div>
+          <div class="rating">${rating}</div>
+          <button onclick="addFavorite(${p.id})">Add to Favorites</button>
+        </div>
       </div>
     `;
   }).join('');
 }
 
-async function addFavorito(productId) {
-  const select = document.getElementById('produto-cliente-select');
-  const clienteId = select.value;
-  if (!clienteId) {
-    alert('Selecione um cliente primeiro');
+async function addFavorite(productId) {
+  const select = document.getElementById('product-customer-select');
+  const customerId = select.value;
+  if (!customerId) {
+    showToast('Select a customer first', 'error');
     return;
   }
   try {
-    const res = await fetch(`${API}/clientes/${clienteId}/favoritos`, {
+    const res = await fetch(`${API}/customers/${customerId}/favorites`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ product_id: productId }),
     });
     if (!res.ok) {
       const err = await res.json();
-      alert(err.error || 'Erro ao adicionar favorito');
+      showToast(err.error || 'Failed to add favorite', 'error');
       return;
     }
-    alert('Produto adicionado aos favoritos!');
+    showToast('Product added to favorites!', 'success');
   } catch (err) {
-    alert('Erro ao adicionar favorito');
+    showToast('Error adding favorite', 'error');
   }
 }
 
-// --- Favoritos ---
-document.getElementById('favoritos-cliente-select').addEventListener('change', (e) => {
-  if (e.target.value) loadFavoritos(e.target.value);
-  else document.getElementById('favoritos-list').innerHTML = '<div class="empty-state">Selecione um cliente para ver seus favoritos</div>';
+// --- Favorites ---
+document.getElementById('favorites-customer-select').addEventListener('change', (e) => {
+  if (e.target.value) loadFavorites(e.target.value);
+  else document.getElementById('favorites-list').innerHTML = '<div class="empty-state">Select a customer to view their favorites</div>';
 });
 
-async function loadFavoritos(clienteId) {
+async function loadFavorites(customerId) {
+  const container = document.getElementById('favorites-list');
+  container.innerHTML = '<div class="loading">Loading favorites...</div>';
   try {
-    const res = await fetch(`${API}/clientes/${clienteId}/favoritos`);
-    if (!res.ok) throw new Error('Erro');
+    const res = await fetch(`${API}/customers/${customerId}/favorites`);
+    if (!res.ok) throw new Error('Failed');
     const data = await res.json();
-    renderFavoritos(data, clienteId);
+    renderFavorites(data, customerId);
   } catch (err) {
-    document.getElementById('favoritos-list').innerHTML = '<div class="empty-state">Erro ao carregar favoritos</div>';
+    container.innerHTML = '<div class="empty-state">Failed to load favorites</div>';
   }
 }
 
-function renderFavoritos(data, clienteId) {
-  const container = document.getElementById('favoritos-list');
+function renderFavorites(data, customerId) {
+  const container = document.getElementById('favorites-list');
   if (data.length === 0) {
-    container.innerHTML = '<div class="empty-state">Nenhum favorito ainda</div>';
+    container.innerHTML = '<div class="empty-state">No favorites yet</div>';
     return;
   }
   container.innerHTML = data.map(f => `
-    <div class="favorito-item">
-      <img src="${f.imagem}" alt="${f.titulo}" loading="lazy">
-      <div class="info">
-        <h3>${f.titulo}</h3>
-        <div class="price">$${f.preco.toFixed(2)}</div>
-        ${f.avaliacao ? `<div class="rating">${f.avaliacao.rate} (${f.avaliacao.count} avaliações)</div>` : ''}
+    <div class="favorite-item">
+      <div class="fav-img-wrap">
+        <img src="${f.image}" alt="${f.title}" loading="lazy">
       </div>
-      <button class="btn-danger" onclick="removeFavorito(${clienteId}, ${f.id})">Remover</button>
+      <div class="fav-info">
+        <h3>${f.title}</h3>
+        <div class="price">$${f.price.toFixed(2)}</div>
+        ${f.rating ? `<div class="rating">${f.rating.rate} (${f.rating.count} reviews)</div>` : ''}
+      </div>
+      <button class="btn-danger" onclick="removeFavorite(${customerId}, ${f.id})">Remove</button>
     </div>
   `).join('');
 }
 
-async function removeFavorito(clienteId, productId) {
-  if (!confirm('Remover dos favoritos?')) return;
+async function removeFavorite(customerId, productId) {
+  if (!confirm('Remove from favorites?')) return;
   try {
-    await fetch(`${API}/clientes/${clienteId}/favoritos/${productId}`, { method: 'DELETE' });
-    loadFavoritos(clienteId);
+    await fetch(`${API}/customers/${customerId}/favorites/${productId}`, { method: 'DELETE' });
+    loadFavorites(customerId);
+    showToast('Favorite removed', 'success');
   } catch (err) {
-    alert('Erro ao remover favorito');
+    showToast('Error removing favorite', 'error');
   }
 }
 
+// --- Toast ---
+function showToast(message, type = 'info') {
+  const existing = document.querySelector('.toast');
+  if (existing) existing.remove();
+
+  const toast = document.createElement('div');
+  toast.className = `toast toast-${type}`;
+  toast.textContent = message;
+  document.body.appendChild(toast);
+
+  requestAnimationFrame(() => toast.classList.add('show'));
+  setTimeout(() => {
+    toast.classList.remove('show');
+    setTimeout(() => toast.remove(), 300);
+  }, 3000);
+}
+
 // --- Init ---
-loadClientes();
+loadCustomers();
