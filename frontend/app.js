@@ -178,7 +178,8 @@ function renderProducts() {
   }).join('');
 
   grid.querySelectorAll('.fav-btn').forEach(btn => {
-    btn.addEventListener('click', async () => {
+    btn.addEventListener('click', async (e) => {
+      e.stopPropagation();
       if (!user) { openAuthModal(); return; }
       const pid = Number(btn.dataset.id);
       const wasFav = favoritedIds.has(pid);
