@@ -67,17 +67,17 @@
 
       <form id="login-form" class="auth-form">
         <h3>Welcome back</h3>
-        <input type="email" placeholder="Email" required>
-        <input type="password" placeholder="Password" required>
+        <input type="email" name="email" placeholder="Email" required>
+        <input type="password" name="password" placeholder="Password" required>
         <button type="submit" class="btn-primary">Sign In</button>
         <p class="form-error" id="login-error"></p>
       </form>
 
       <form id="register-form" class="auth-form" style="display:none">
         <h3>Create your account</h3>
-        <input type="text" placeholder="Full Name" required>
-        <input type="email" placeholder="Email" required>
-        <input type="password" placeholder="Password (min 6 characters)" required>
+        <input type="text" name="name" placeholder="Full Name" required>
+        <input type="email" name="email" placeholder="Email" required>
+        <input type="password" name="password" placeholder="Password (min 6 characters)" required>
         <button type="submit" class="btn-primary">Create Account</button>
         <p class="form-error" id="register-error"></p>
       </form>
