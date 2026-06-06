@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Favorites Lab</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header>
+    <div class="header-inner">
+      <h1>Favorites Lab</h1>
+      <nav>
+        <button class="tab active" data-tab="clientes">Clientes</button>
+        <button class="tab" data-tab="produtos">Produtos</button>
+        <button class="tab" data-tab="favoritos">Favoritos</button>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section id="section-clientes" class="tab-content active">
+      <h2>Gerenciar Clientes</h2>
+      <form id="cliente-form">
+        <input type="hidden" id="cliente-id">
+        <input type="text" id="cliente-nome" placeholder="Nome" required>
+        <input type="email" id="cliente-email" placeholder="Email" required>
+        <button type="submit">Salvar</button>
+        <button type="button" id="cliente-cancel" class="btn-secondary" style="display:none">Cancelar</button>
+      </form>
+      <div class="table-wrap">
+        <table id="clientes-table">
+          <thead>
+            <tr><th>ID</th><th>Nome</th><th>Email</th><th>Ações</th></tr>
+          </thead>
+          <tbody id="clientes-list"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="section-produtos" class="tab-content">
+      <h2>Produtos</h2>
+      <div class="cliente-select-bar">
+        <label>Adicionar favoritos para:</label>
+        <select id="produto-cliente-select">
+          <option value="">Selecione um cliente</option>
+        </select>
+      </div>
+      <div id="produtos-grid"></div>
+    </section>
+
+    <section id="section-favoritos" class="tab-content">
+      <h2>Favoritos</h2>
+      <div class="cliente-select-bar">
+        <label>Cliente:</label>
+        <select id="favoritos-cliente-select">
+          <option value="">Selecione um cliente</option>
+        </select>
+      </div>
+      <div id="favoritos-list"></div>
+    </section>
+  </main>
+
+  <footer>
+    <p>Equipe: Stingy Namake</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
