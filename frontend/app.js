@@ -13,9 +13,11 @@ let favoritedIds = new Set();
 
 // --- DOM refs ---
 const $ = id => document.getElementById(id);
+let previousTab = 'home';
 const sections = {
   home: $('section-home'),
   favorites: $('section-favorites'),
+  product: $('section-product'),
 };
 
 // --- Init ---
@@ -159,14 +161,14 @@ function renderProducts() {
     const heartFill = isFav ? 'currentColor' : 'none';
     return `
       <div class="product-card">
-        <div class="product-img-wrap">
+        <div class="product-img-wrap" data-id="${p.id}" style="cursor:pointer">
           <img src="${p.image}" alt="${p.title}" loading="lazy">
           <button class="fav-btn ${isFav ? 'fav-active' : ''}" data-id="${p.id}" title="${isFav ? 'Remove from favorites' : 'Add to favorites'}">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="${heartFill}" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
           </button>
         </div>
         <div class="product-body">
-          <h3>${p.title}</h3>
+          <h3 style="cursor:pointer" data-id="${p.id}">${p.title}</h3>
           <div class="rating-row">${stars} <span class="review-count">${reviewCount}</span></div>
           <div class="price">$${p.price.toFixed(2)}</div>
           <button class="add-cart-btn ${inCart ? 'in-cart' : ''}" data-id="${p.id}">${inCart ? 'In Cart' : 'Add to Cart'}</button>
@@ -219,6 +221,10 @@ function renderProducts() {
         showToast('Error toggling favorite', 'error');
       }
     });
+  });
+
+  grid.querySelectorAll('.product-img-wrap[data-id], .product-body h3[data-id]').forEach(el => {
+    el.addEventListener('click', () => showProductDetail(Number(el.dataset.id)));
   });
 
   grid.querySelectorAll('.add-cart-btn').forEach(btn => {
@@ -277,6 +283,100 @@ function renderPagination(total) {
   });
 }
 
+// --- Product Detail ---
+function showProductDetail(productId) {
+  const product = allProducts.find(p => p.id === productId);
+  if (!product) { showToast('Product not found', 'error'); return; }
+  // save current tab
+  const activeTab = document.querySelector('.nav-link.active');
+  previousTab = activeTab ? activeTab.dataset.tab : 'home';
+  // switch to product section
+  document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+  Object.values(sections).forEach(s => s.classList.remove('active'));
+  sections.product.classList.add('active');
+  renderProductDetail(product);
+  window.scrollTo({ top: 0 });
+}
+
+function renderProductDetail(product) {
+  const container = $('product-detail');
+  const inCart = cartItems.some(i => i.product_id === product.id);
+  const isFav = favoritedIds.has(product.id);
+  const r = product.rating;
+  const stars = r ? renderStars(r.rate) : '';
+
+  container.innerHTML = `
+    <div class="product-detail">
+      <div class="product-detail-img">
+        <img src="${product.image}" alt="${product.title}">
+      </div>
+      <div class="product-detail-info">
+        <span class="product-detail-category">${product.category}</span>
+        <h2>${product.title}</h2>
+        <div class="rating-row">${stars} ${r ? `<span class="review-count">${r.count} reviews</span>` : ''}</div>
+        <div class="product-detail-price">$${product.price.toFixed(2)}</div>
+        <p class="product-detail-desc">${product.description}</p>
+        <div class="product-detail-actions">
+          <button class="add-cart-btn ${inCart ? 'in-cart' : ''}" data-id="${product.id}">${inCart ? 'In Cart' : 'Add to Cart'}</button>
+          <button class="btn-outline ${isFav ? 'fav-active' : ''}" id="detail-fav-btn">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="${isFav ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            ${isFav ? 'Favorited' : 'Favorite'}
+          </button>
+        </div>
+      </div>
+    </div>
+  `;
+
+  // detail cart button
+  container.querySelector('.add-cart-btn').addEventListener('click', async () => {
+    if (!user) { openAuthModal(); return; }
+    const already = cartItems.some(i => i.product_id === product.id);
+    if (already) { openCart(); return; }
+    try {
+      const res = await fetch(`${API}/cart`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ product_id: product.id, quantity: 1 }),
+      });
+      if (!res.ok) { const e = await res.json(); showToast(e.error || 'Failed', 'error'); return; }
+      showToast('Added to cart!', 'success');
+      await loadCart();
+      renderProductDetail(product);
+    } catch { showToast('Error adding to cart', 'error'); }
+  });
+
+  // detail fav button
+  container.querySelector('#detail-fav-btn').addEventListener('click', async () => {
+    if (!user) { openAuthModal(); return; }
+    const wasFav = favoritedIds.has(product.id);
+    if (wasFav) {
+      favoritedIds.delete(product.id);
+      try {
+        await fetch(`${API}/favorites/${product.id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } });
+        showToast('Removed from favorites', 'success');
+      } catch { favoritedIds.add(product.id); showToast('Error', 'error'); }
+    } else {
+      favoritedIds.add(product.id);
+      try {
+        const res = await fetch(`${API}/favorites`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+          body: JSON.stringify({ product_id: product.id }),
+        });
+        if (!res.ok) throw new Error();
+        showToast('Added to favorites!', 'success');
+      } catch { favoritedIds.delete(product.id); showToast('Error', 'error'); }
+    }
+    renderProductDetail(product);
+    renderProducts();
+  });
+}
+
+// --- Back ---
+$('product-back').addEventListener('click', () => {
+  switchTab(previousTab);
+});
+
 // --- Favorites ---
 async function loadFavorites() {
   const container = $('favorites-list');
@@ -302,19 +402,22 @@ function renderFavorites(data) {
     const r = f.rating;
     const stars = r ? renderStars(r.rate) : '';
     return `
-      <div class="fav-item">
+      <div class="fav-item" style="cursor:pointer" data-id="${f.id}">
         <div class="fav-img-wrap"><img src="${f.image}" alt="${f.title}" loading="lazy"></div>
         <div class="fav-info">
           <h3>${f.title}</h3>
           <div class="rating-row">${stars}</div>
           <div class="price">$${f.price.toFixed(2)}</div>
         </div>
-        <button class="btn-remove" data-id="${f.id}">
+        <button class="btn-remove" data-id="${f.id}" onclick="event.stopPropagation()">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
         </button>
       </div>
     `;
   }).join('');
+  container.querySelectorAll('.fav-item').forEach(item => {
+    item.addEventListener('click', () => showProductDetail(Number(item.dataset.id)));
+  });
   container.querySelectorAll('.btn-remove').forEach(btn => {
     btn.addEventListener('click', async () => {
       const pid = Number(btn.dataset.id);
@@ -398,12 +501,12 @@ function renderCartDrawer() {
     return;
   }
   body.innerHTML = cartItems.map(item => `
-    <div class="cart-item">
+    <div class="cart-item" style="cursor:pointer" data-pid="${item.product_id}">
       <div class="cart-item-img"><img src="${item.image}" alt="${item.title}" loading="lazy"></div>
       <div class="cart-item-info">
         <h4>${item.title}</h4>
         <div class="cart-item-price">$${(item.price * item.quantity).toFixed(2)}</div>
-        <div class="cart-qty">
+        <div class="cart-qty" onclick="event.stopPropagation()">
           <button class="qty-btn" data-pid="${item.product_id}" data-dir="-1">−</button>
           <span class="qty-value">${item.quantity}</span>
           <button class="qty-btn" data-pid="${item.product_id}" data-dir="1">+</button>
@@ -414,6 +517,10 @@ function renderCartDrawer() {
       </div>
     </div>
   `).join('');
+
+  body.querySelectorAll('.cart-item').forEach(item => {
+    item.addEventListener('click', () => { closeCart(); showProductDetail(Number(item.dataset.pid)); });
+  });
 
   const total = cartItems.reduce((s, i) => s + i.price * i.quantity, 0);
   $('cart-total').textContent = `$${total.toFixed(2)}`;
