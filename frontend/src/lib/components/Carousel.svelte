@@ -106,6 +106,10 @@
       </div>
     </div>
 
+    <div style="text-align:center;padding-top:1rem;">
+      <a href="/products"><button class="primary" style="padding:0.75rem 2rem;">Shop All Products</button></a>
+    </div>
+
     <div class="product-grid">
       {#each products as product (product.id)}
         <div class="card">
@@ -146,7 +150,7 @@
   .carousel-section h2 { font-size:1.25rem; font-weight:700; margin-bottom:1rem; }
 
   .carousel-wrap { position:relative; border-radius:var(--radius-lg); overflow:hidden; background:var(--bg-card); }
-  .carousel-item { display:none; position:relative; width:100%; }
+  .carousel-item { display:none; position:relative; width:100%; padding:0 3.5rem; }
   .carousel-item.active { display:flex; }
 
   .carousel-img { width:40%; flex-shrink:0; display:flex; align-items:center; justify-content:center; padding:2rem; background:var(--bg-alt); }

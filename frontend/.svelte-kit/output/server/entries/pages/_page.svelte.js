@@ -17,7 +17,7 @@ function Carousel($$renderer, $$props) {
   });
 }
 function _page($$renderer) {
-  $$renderer.push(`<div class="hero svelte-1uha8ag"><h1 class="svelte-1uha8ag">kishin echoes</h1> <p class="svelte-1uha8ag">Browse our curated collection of products</p> <a href="/products"><button class="primary" style="margin-top:1rem;padding:0.75rem 2rem;">Shop All Products</button></a></div> `);
+  $$renderer.push(`<div class="hero svelte-1uha8ag"><h1 class="svelte-1uha8ag">kishin echoes</h1> <p class="svelte-1uha8ag">Browse our curated collection of products</p></div> `);
   Carousel($$renderer);
   $$renderer.push(`<!---->`);
 }
