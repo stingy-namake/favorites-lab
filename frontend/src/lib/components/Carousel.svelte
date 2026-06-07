@@ -58,13 +58,15 @@
 
   $effect(() => {
     if (!products.length || !wrapEl) return;
-    const raf = requestAnimationFrame(() => {
+    const ro = new ResizeObserver(() => {
       const items = wrapEl!.querySelectorAll('.carousel-item');
       let maxH = 0;
       items.forEach(el => { const h = (el as HTMLElement).offsetHeight; if (h > maxH) maxH = h; });
       if (maxH > wrapMinH) wrapMinH = maxH;
     });
-    return () => cancelAnimationFrame(raf);
+    const items = wrapEl.querySelectorAll('.carousel-item');
+    items.forEach(el => ro.observe(el));
+    return () => ro.disconnect();
   });
 
   function openOverlay(p: Product) {
@@ -211,7 +213,7 @@
   .carousel-section { padding:1.5rem 0; }
   .carousel-section h2 { font-size:1.25rem; font-weight:700; margin-bottom:1rem; }
 
-  .carousel-wrap { position:relative; border-radius:var(--radius-lg); overflow:hidden; background:var(--bg-card); }
+  .carousel-wrap { position:relative; border-radius:var(--radius-lg); overflow:hidden; background:var(--bg-card); transition:min-height 0.3s ease; }
 
   .carousel-item { position:absolute; top:0; left:0; width:100%; padding:0 3.5rem; display:flex; opacity:0; transform:translateY(10px); transition:opacity 0.4s ease, transform 0.4s ease; pointer-events:none; }
   .carousel-item.active { position:relative; opacity:1; transform:translateY(0); pointer-events:auto; }
