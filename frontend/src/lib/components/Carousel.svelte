@@ -17,6 +17,8 @@
   let current = $state(0);
   let interval: ReturnType<typeof setInterval> | null = null;
   let selectedProduct = $state<Product | null>(null);
+  let wrapEl = $state<HTMLDivElement | undefined>(undefined);
+  let wrapMinH = $state(0);
 
   onMount(async () => {
     try {
@@ -54,6 +56,17 @@
     else favs.add(id);
   }
 
+  $effect(() => {
+    if (!products.length || !wrapEl) return;
+    const raf = requestAnimationFrame(() => {
+      const items = wrapEl!.querySelectorAll('.carousel-item');
+      let maxH = 0;
+      items.forEach(el => { const h = (el as HTMLElement).offsetHeight; if (h > maxH) maxH = h; });
+      if (maxH > wrapMinH) wrapMinH = maxH;
+    });
+    return () => cancelAnimationFrame(raf);
+  });
+
   function openOverlay(p: Product) {
     selectedProduct = p;
     stop();
@@ -70,7 +83,7 @@
 {:else if products.length > 0}
   <div class="carousel-section">
     <h2>{title}</h2>
-    <div class="carousel-wrap">
+    <div class="carousel-wrap" bind:this={wrapEl} style="min-height:{wrapMinH}px">
       {#each products as product, i (product.id)}
         <div class="carousel-item" class:active={i === current}>
           <button class="carousel-img" onclick={() => openOverlay(product)}>
