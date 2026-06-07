@@ -1,14 +1,4 @@
 const DEV = false;
-function experimental_async_required(name) {
-  {
-    throw new Error(`https://svelte.dev/e/experimental_async_required`);
-  }
-}
-function lifecycle_outside_component(name) {
-  {
-    throw new Error(`https://svelte.dev/e/lifecycle_outside_component`);
-  }
-}
 function await_invalid() {
   const error = new Error(`await_invalid
 Encountered asynchronous work while rendering synchronously.
@@ -61,9 +51,7 @@ export {
   DEV as D,
   await_invalid as a,
   invalid_csp as b,
-  experimental_async_required as e,
   get_render_context as g,
   hydratable_serialization_failed as h,
-  invalid_id_prefix as i,
-  lifecycle_outside_component as l
+  invalid_id_prefix as i
 };

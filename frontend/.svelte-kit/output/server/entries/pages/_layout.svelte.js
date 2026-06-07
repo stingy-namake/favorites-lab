@@ -62,7 +62,7 @@ function _layout($$renderer, $$props) {
   $$renderer.component(($$renderer2) => {
     let { children } = $$props;
     let cartOpen = false;
-    $$renderer2.push(`<nav class="nav"><a href="/" class="nav-brand">FAKESTORE</a> <div class="nav-links"><a href="/products">PRODUCTS</a> `);
+    $$renderer2.push(`<nav class="nav"><a href="/" class="nav-brand">kishin echoes</a> <div class="nav-links"><a href="/products">PRODUCTS</a> `);
     {
       $$renderer2.push("<!--[-1-->");
     }
@@ -86,7 +86,7 @@ function _layout($$renderer, $$props) {
     Snackbar($$renderer2);
     $$renderer2.push(`<!----> <main class="container" style="padding-top:2rem;padding-bottom:4rem;">`);
     children($$renderer2);
-    $$renderer2.push(`<!----></main>`);
+    $$renderer2.push(`<!----></main> <footer class="footer svelte-12qhfyh"><div class="container"><span class="svelte-12qhfyh">kishin echoes · powered by FakeStoreAPI</span></div></footer>`);
   });
 }
 export {

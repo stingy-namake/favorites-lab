@@ -1076,11 +1076,6 @@ var init_utils2 = __esm({
 });
 
 // .svelte-kit/output/server/chunks/render-context.js
-function lifecycle_outside_component(name) {
-  {
-    throw new Error(`https://svelte.dev/e/lifecycle_outside_component`);
-  }
-}
 function await_invalid() {
   const error2 = new Error(`await_invalid
 Encountered asynchronous work while rendering synchronously.
@@ -1121,6 +1116,17 @@ var init_render_context = __esm({
   ".svelte-kit/output/server/chunks/render-context.js"() {
     DEV = false;
     als = null;
+  }
+});
+
+// .svelte-kit/output/server/chunks/errors.js
+function lifecycle_outside_component(name) {
+  {
+    throw new Error(`https://svelte.dev/e/lifecycle_outside_component`);
+  }
+}
+var init_errors = __esm({
+  ".svelte-kit/output/server/chunks/errors.js"() {
   }
 });
 
@@ -1426,6 +1432,54 @@ var init_exports = __esm({
   }
 });
 
+// .svelte-kit/output/server/chunks/context.js
+function set_ssr_context(v) {
+  ssr_context = v;
+}
+function getContext(key2) {
+  const context_map = get_or_init_context_map();
+  const result = (
+    /** @type {T} */
+    context_map.get(key2)
+  );
+  return result;
+}
+function setContext(key2, context2) {
+  get_or_init_context_map().set(key2, context2);
+  return context2;
+}
+function get_or_init_context_map(name) {
+  if (ssr_context === null) {
+    lifecycle_outside_component();
+  }
+  return ssr_context.c ??= new Map(get_parent_context(ssr_context) || void 0);
+}
+function push(fn) {
+  ssr_context = { p: ssr_context, c: null, r: null };
+}
+function pop() {
+  ssr_context = /** @type {SSRContext} */
+  ssr_context.p;
+}
+function get_parent_context(ssr_context2) {
+  let parent = ssr_context2.p;
+  while (parent !== null) {
+    const context_map = parent.c;
+    if (context_map !== null) {
+      return context_map;
+    }
+    parent = parent.p;
+  }
+  return null;
+}
+var ssr_context;
+var init_context = __esm({
+  ".svelte-kit/output/server/chunks/context.js"() {
+    init_errors();
+    ssr_context = null;
+  }
+});
+
 // .svelte-kit/output/server/chunks/root.js
 function run_all(arr) {
   for (var i = 0; i < arr.length; i++) {
@@ -1483,7 +1537,7 @@ function svelte_boundary_reset_onerror() {
 function set_component_context(context2) {
   component_context = context2;
 }
-function push$1(props, runes = false, fn) {
+function push2(props, runes = false, fn) {
   component_context = {
     p: component_context,
     i: false,
@@ -1498,7 +1552,7 @@ function push$1(props, runes = false, fn) {
     l: null
   };
 }
-function pop$1(component12) {
+function pop2(component12) {
   var context2 = (
     /** @type {ComponentContext} */
     component_context
@@ -3065,7 +3119,7 @@ function _mount(Component, { target, anchor, props = {}, events, context: contex
         }
       },
       (anchor_node2) => {
-        push$1({});
+        push2({});
         var ctx = (
           /** @type {ComponentContext} */
           component_context
@@ -3090,7 +3144,7 @@ function _mount(Component, { target, anchor, props = {}, events, context: contex
             throw HYDRATION_ERROR;
           }
         }
-        pop$1();
+        pop2();
       },
       transformError
     );
@@ -3321,45 +3375,6 @@ function abort() {
   controller?.abort(STALE_REACTION);
   controller = null;
 }
-function set_ssr_context(v) {
-  ssr_context = v;
-}
-function getContext(key2) {
-  const context_map = get_or_init_context_map();
-  const result = (
-    /** @type {T} */
-    context_map.get(key2)
-  );
-  return result;
-}
-function setContext(key2, context2) {
-  get_or_init_context_map().set(key2, context2);
-  return context2;
-}
-function get_or_init_context_map(name) {
-  if (ssr_context === null) {
-    lifecycle_outside_component();
-  }
-  return ssr_context.c ??= new Map(get_parent_context(ssr_context) || void 0);
-}
-function push(fn) {
-  ssr_context = { p: ssr_context, c: null, r: null };
-}
-function pop() {
-  ssr_context = /** @type {SSRContext} */
-  ssr_context.p;
-}
-function get_parent_context(ssr_context2) {
-  let parent = ssr_context2.p;
-  while (parent !== null) {
-    const context_map = parent.c;
-    if (context_map !== null) {
-      return context_map;
-    }
-    parent = parent.p;
-  }
-  return null;
-}
 function unresolved_hydratable(key2, stack) {
   {
     console.warn(`https://svelte.dev/e/unresolved_hydratable`);
@@ -3568,11 +3583,12 @@ function Root($$renderer, $$props) {
     $$renderer2.push(`<!--]-->`);
   });
 }
-var DERIVED, EFFECT, RENDER_EFFECT, MANAGED_EFFECT, BLOCK_EFFECT, BRANCH_EFFECT, ROOT_EFFECT, BOUNDARY_EFFECT, CONNECTED, CLEAN, DIRTY, MAYBE_DIRTY, INERT, DESTROYED, REACTION_RAN, DESTROYING, EFFECT_TRANSPARENT, EAGER_EFFECT, HEAD_EFFECT, EFFECT_PRESERVED, USER_EFFECT, WAS_MARKED, REACTION_IS_UPDATING, ASYNC, ERROR_VALUE, STATE_SYMBOL, LEGACY_PROPS, ATTRIBUTES_CACHE, CLASS_CACHE, STYLE_CACHE, TEXT_CACHE, STALE_REACTION, COMMENT_NODE, is_array, index_of, includes, array_from, define_property, get_descriptor, object_prototype, array_prototype, get_prototype_of, is_extensible, has_own_property, noop2, tracing_mode_flag, HYDRATION_START, HYDRATION_START_ELSE, HYDRATION_START_FAILED, HYDRATION_END, HYDRATION_ERROR, ELEMENT_IS_NAMESPACED, ELEMENT_PRESERVE_ATTRIBUTE_CASE, ELEMENT_IS_INPUT, UNINITIALIZED, component_context, micro_tasks, hydrating, hydrate_node, $window, first_child_getter, next_sibling_getter, STATUS_MASK, flags, Boundary, OBSOLETE, first_batch, last_batch, current_batch, previous_batch, batch_values, last_scheduled_effect, is_flushing_sync, is_processing, collected_effects, legacy_updates, flush_count, uid, Batch, eager_block_effects, eager_effects, old_values, eager_effects_deferred, is_updating_effect, is_destroying_effect, active_reaction, untracking, active_effect, current_sources, new_deps, skipped_deps, untracked_writes, write_version, read_version, update_version, event_symbol, all_registered_events, root_event_handles, last_propagated_event, DOM_BOOLEAN_ATTRIBUTES, PASSIVE_EVENTS, listeners, mounted_components, Svelte4Component, ATTR_REGEX, CONTENT_REGEX, replacements, whitespace, BLOCK_OPEN, BLOCK_CLOSE, controller, ssr_context, text_encoder3, crypto2, obfuscated_import, Renderer, SSRState, INVALID_ATTR_NAME_CHAR_REGEX, root;
+var DERIVED, EFFECT, RENDER_EFFECT, MANAGED_EFFECT, BLOCK_EFFECT, BRANCH_EFFECT, ROOT_EFFECT, BOUNDARY_EFFECT, CONNECTED, CLEAN, DIRTY, MAYBE_DIRTY, INERT, DESTROYED, REACTION_RAN, DESTROYING, EFFECT_TRANSPARENT, EAGER_EFFECT, HEAD_EFFECT, EFFECT_PRESERVED, USER_EFFECT, WAS_MARKED, REACTION_IS_UPDATING, ASYNC, ERROR_VALUE, STATE_SYMBOL, LEGACY_PROPS, ATTRIBUTES_CACHE, CLASS_CACHE, STYLE_CACHE, TEXT_CACHE, STALE_REACTION, COMMENT_NODE, is_array, index_of, includes, array_from, define_property, get_descriptor, object_prototype, array_prototype, get_prototype_of, is_extensible, has_own_property, noop2, tracing_mode_flag, HYDRATION_START, HYDRATION_START_ELSE, HYDRATION_START_FAILED, HYDRATION_END, HYDRATION_ERROR, ELEMENT_IS_NAMESPACED, ELEMENT_PRESERVE_ATTRIBUTE_CASE, ELEMENT_IS_INPUT, UNINITIALIZED, component_context, micro_tasks, hydrating, hydrate_node, $window, first_child_getter, next_sibling_getter, STATUS_MASK, flags, Boundary, OBSOLETE, first_batch, last_batch, current_batch, previous_batch, batch_values, last_scheduled_effect, is_flushing_sync, is_processing, collected_effects, legacy_updates, flush_count, uid, Batch, eager_block_effects, eager_effects, old_values, eager_effects_deferred, is_updating_effect, is_destroying_effect, active_reaction, untracking, active_effect, current_sources, new_deps, skipped_deps, untracked_writes, write_version, read_version, update_version, event_symbol, all_registered_events, root_event_handles, last_propagated_event, DOM_BOOLEAN_ATTRIBUTES, PASSIVE_EVENTS, listeners, mounted_components, Svelte4Component, ATTR_REGEX, CONTENT_REGEX, replacements, whitespace, BLOCK_OPEN, BLOCK_CLOSE, controller, text_encoder3, crypto2, obfuscated_import, Renderer, SSRState, INVALID_ATTR_NAME_CHAR_REGEX, root;
 var init_root = __esm({
   ".svelte-kit/output/server/chunks/root.js"() {
     init_render_context();
     init_clsx();
+    init_context();
     init_devalue();
     DERIVED = 1 << 1;
     EFFECT = 1 << 2;
@@ -4798,7 +4814,6 @@ var init_root = __esm({
     BLOCK_OPEN = `<!--${HYDRATION_START}-->`;
     BLOCK_CLOSE = `<!--${HYDRATION_END}-->`;
     controller = null;
-    ssr_context = null;
     obfuscated_import = (module_name) => import(
       /* @vite-ignore */
       module_name
@@ -5972,7 +5987,7 @@ function _layout($$renderer, $$props) {
   $$renderer.component(($$renderer2) => {
     let { children } = $$props;
     let cartOpen = false;
-    $$renderer2.push(`<nav class="nav"><a href="/" class="nav-brand">FAKESTORE</a> <div class="nav-links"><a href="/products">PRODUCTS</a> `);
+    $$renderer2.push(`<nav class="nav"><a href="/" class="nav-brand">kishin echoes</a> <div class="nav-links"><a href="/products">PRODUCTS</a> `);
     {
       $$renderer2.push("<!--[-1-->");
     }
@@ -5996,7 +6011,7 @@ function _layout($$renderer, $$props) {
     Snackbar($$renderer2);
     $$renderer2.push(`<!----> <main class="container" style="padding-top:2rem;padding-bottom:4rem;">`);
     children($$renderer2);
-    $$renderer2.push(`<!----></main>`);
+    $$renderer2.push(`<!----></main> <footer class="footer svelte-12qhfyh"><div class="container"><span class="svelte-12qhfyh">kishin echoes \xB7 powered by FakeStoreAPI</span></div></footer>`);
   });
 }
 var init_layout_svelte = __esm({
@@ -6026,8 +6041,8 @@ var init__ = __esm({
   ".svelte-kit/output/server/nodes/0.js"() {
     index = 0;
     component = async () => component_cache ??= (await Promise.resolve().then(() => (init_layout_svelte(), layout_svelte_exports))).default;
-    imports = ["_app/immutable/nodes/0.wXm7-s8p.js", "_app/immutable/chunks/BJYn_3Gp.js", "_app/immutable/chunks/BAkBpxy_.js", "_app/immutable/chunks/DBxor342.js", "_app/immutable/chunks/oIn1ZAnG.js", "_app/immutable/chunks/DtN89Elg.js", "_app/immutable/chunks/CLG8Vc4N.js", "_app/immutable/chunks/DNLUGN6H.js", "_app/immutable/chunks/BSTlxQ3K.js", "_app/immutable/chunks/BxsUKz-u.js", "_app/immutable/chunks/_pddM9iv.js", "_app/immutable/chunks/XR_rlDqv.js", "_app/immutable/chunks/weL_U30R.js", "_app/immutable/chunks/ni7G3-tv.js", "_app/immutable/chunks/OnvuAVbp.js"];
-    stylesheets = ["_app/immutable/assets/0.BBAkFkfb.css"];
+    imports = ["_app/immutable/nodes/0.DqjAkOc8.js", "_app/immutable/chunks/Cqr37zqI.js", "_app/immutable/chunks/CIHkJHWi.js", "_app/immutable/chunks/DhRlghqI.js", "_app/immutable/chunks/AylrqfBP.js", "_app/immutable/chunks/CicxTbKN.js", "_app/immutable/chunks/Dfig3aVv.js", "_app/immutable/chunks/BAVV4j-Y.js", "_app/immutable/chunks/D5APqZVA.js", "_app/immutable/chunks/D6M9iSKt.js", "_app/immutable/chunks/BsFscbSx.js", "_app/immutable/chunks/G-GGW_cX.js", "_app/immutable/chunks/DCKm003N.js"];
+    stylesheets = ["_app/immutable/assets/0.CYUuDOUX.css"];
     fonts = [];
   }
 });
@@ -6066,6 +6081,7 @@ var init_error_svelte = __esm({
     init_utils2();
     init_chunks();
     init_server();
+    init_context();
     stores = {
       updated: /* @__PURE__ */ create_updated_store()
     };
@@ -6098,7 +6114,7 @@ var init__2 = __esm({
   ".svelte-kit/output/server/nodes/1.js"() {
     index2 = 1;
     component2 = async () => component_cache2 ??= (await Promise.resolve().then(() => (init_error_svelte(), error_svelte_exports))).default;
-    imports2 = ["_app/immutable/nodes/1.4EaHYU9l.js", "_app/immutable/chunks/BJYn_3Gp.js", "_app/immutable/chunks/BAkBpxy_.js", "_app/immutable/chunks/weL_U30R.js", "_app/immutable/chunks/XR_rlDqv.js"];
+    imports2 = ["_app/immutable/nodes/1.BsOv9aiy.js", "_app/immutable/chunks/Cqr37zqI.js", "_app/immutable/chunks/CIHkJHWi.js", "_app/immutable/chunks/BsFscbSx.js"];
     stylesheets2 = [];
     fonts2 = [];
   }
@@ -6125,19 +6141,14 @@ function Carousel($$renderer, $$props) {
   });
 }
 function _page($$renderer) {
-  $$renderer.push(`<div class="hero svelte-1uha8ag"><h1 class="svelte-1uha8ag">FakeStore</h1> <p class="svelte-1uha8ag">Browse our curated collection of products</p> <a href="/products"><button class="primary" style="margin-top:1rem;padding:0.75rem 2rem;">Shop All Products</button></a></div> `);
+  $$renderer.push(`<div class="hero svelte-1uha8ag"><h1 class="svelte-1uha8ag">kishin echoes</h1> <p class="svelte-1uha8ag">Browse our curated collection of products</p> <a href="/products"><button class="primary" style="margin-top:1rem;padding:0.75rem 2rem;">Shop All Products</button></a></div> `);
   Carousel($$renderer);
   $$renderer.push(`<!---->`);
 }
 var init_page_svelte = __esm({
   ".svelte-kit/output/server/entries/pages/_page.svelte.js"() {
     init_clsx();
-    init_root();
-    init_internal();
-    init_exports();
-    init_utils2();
-    init_server();
-    init_state_svelte();
+    init_context();
   }
 });
 
@@ -6155,8 +6166,8 @@ var init__3 = __esm({
   ".svelte-kit/output/server/nodes/2.js"() {
     index3 = 2;
     component3 = async () => component_cache3 ??= (await Promise.resolve().then(() => (init_page_svelte(), page_svelte_exports))).default;
-    imports3 = ["_app/immutable/nodes/2.Dn9F6C0L.js", "_app/immutable/chunks/BJYn_3Gp.js", "_app/immutable/chunks/BAkBpxy_.js", "_app/immutable/chunks/ni7G3-tv.js", "_app/immutable/chunks/DBxor342.js", "_app/immutable/chunks/oIn1ZAnG.js", "_app/immutable/chunks/DtN89Elg.js", "_app/immutable/chunks/CLG8Vc4N.js", "_app/immutable/chunks/DNLUGN6H.js", "_app/immutable/chunks/BSTlxQ3K.js", "_app/immutable/chunks/DxY-rszY.js", "_app/immutable/chunks/BxsUKz-u.js", "_app/immutable/chunks/weL_U30R.js"];
-    stylesheets3 = ["_app/immutable/assets/2.2AiwExnX.css"];
+    imports3 = ["_app/immutable/nodes/2.DPATpXmW.js", "_app/immutable/chunks/Cqr37zqI.js", "_app/immutable/chunks/CIHkJHWi.js", "_app/immutable/chunks/G-GGW_cX.js", "_app/immutable/chunks/DhRlghqI.js", "_app/immutable/chunks/AylrqfBP.js", "_app/immutable/chunks/CicxTbKN.js", "_app/immutable/chunks/Dfig3aVv.js", "_app/immutable/chunks/BAVV4j-Y.js", "_app/immutable/chunks/B3YjXIv-.js", "_app/immutable/chunks/D5APqZVA.js"];
+    stylesheets3 = ["_app/immutable/assets/2.CDklFd8e.css"];
     fonts3 = [];
   }
 });
@@ -6202,7 +6213,7 @@ var init__4 = __esm({
   ".svelte-kit/output/server/nodes/3.js"() {
     index4 = 3;
     component4 = async () => component_cache4 ??= (await Promise.resolve().then(() => (init_page_svelte2(), page_svelte_exports2))).default;
-    imports4 = ["_app/immutable/nodes/3.DBS5KEvv.js", "_app/immutable/chunks/BJYn_3Gp.js", "_app/immutable/chunks/BAkBpxy_.js", "_app/immutable/chunks/DBxor342.js", "_app/immutable/chunks/oIn1ZAnG.js", "_app/immutable/chunks/DNLUGN6H.js", "_app/immutable/chunks/CLG8Vc4N.js", "_app/immutable/chunks/XR_rlDqv.js", "_app/immutable/chunks/weL_U30R.js"];
+    imports4 = ["_app/immutable/nodes/3.Ddi85U1z.js", "_app/immutable/chunks/Cqr37zqI.js", "_app/immutable/chunks/CIHkJHWi.js", "_app/immutable/chunks/DhRlghqI.js", "_app/immutable/chunks/AylrqfBP.js", "_app/immutable/chunks/BAVV4j-Y.js", "_app/immutable/chunks/Dfig3aVv.js", "_app/immutable/chunks/BsFscbSx.js"];
     stylesheets4 = ["_app/immutable/assets/3.DqZ6mB-8.css"];
     fonts4 = [];
   }
@@ -6250,7 +6261,7 @@ var init__5 = __esm({
   ".svelte-kit/output/server/nodes/4.js"() {
     index5 = 4;
     component5 = async () => component_cache5 ??= (await Promise.resolve().then(() => (init_page_svelte3(), page_svelte_exports3))).default;
-    imports5 = ["_app/immutable/nodes/4.sGMuvttF.js", "_app/immutable/chunks/BJYn_3Gp.js", "_app/immutable/chunks/BAkBpxy_.js", "_app/immutable/chunks/DBxor342.js", "_app/immutable/chunks/DtN89Elg.js", "_app/immutable/chunks/CLG8Vc4N.js", "_app/immutable/chunks/BPD1KTtw.js", "_app/immutable/chunks/BxsUKz-u.js", "_app/immutable/chunks/XR_rlDqv.js", "_app/immutable/chunks/weL_U30R.js"];
+    imports5 = ["_app/immutable/nodes/4.BkaOMi_L.js", "_app/immutable/chunks/Cqr37zqI.js", "_app/immutable/chunks/CIHkJHWi.js", "_app/immutable/chunks/DhRlghqI.js", "_app/immutable/chunks/CicxTbKN.js", "_app/immutable/chunks/Dfig3aVv.js", "_app/immutable/chunks/DrZ0Ux8T.js", "_app/immutable/chunks/D5APqZVA.js", "_app/immutable/chunks/BsFscbSx.js"];
     stylesheets5 = ["_app/immutable/assets/4.CyDn8lhU.css"];
     fonts5 = [];
   }
@@ -6299,7 +6310,7 @@ var init__6 = __esm({
   ".svelte-kit/output/server/nodes/5.js"() {
     index6 = 5;
     component6 = async () => component_cache6 ??= (await Promise.resolve().then(() => (init_page_svelte4(), page_svelte_exports4))).default;
-    imports6 = ["_app/immutable/nodes/5.CtNrRmaL.js", "_app/immutable/chunks/BJYn_3Gp.js", "_app/immutable/chunks/BAkBpxy_.js", "_app/immutable/chunks/DBxor342.js", "_app/immutable/chunks/DtN89Elg.js", "_app/immutable/chunks/CLG8Vc4N.js", "_app/immutable/chunks/BPD1KTtw.js", "_app/immutable/chunks/BxsUKz-u.js", "_app/immutable/chunks/XR_rlDqv.js", "_app/immutable/chunks/weL_U30R.js"];
+    imports6 = ["_app/immutable/nodes/5.BmboG4R_.js", "_app/immutable/chunks/Cqr37zqI.js", "_app/immutable/chunks/CIHkJHWi.js", "_app/immutable/chunks/DhRlghqI.js", "_app/immutable/chunks/CicxTbKN.js", "_app/immutable/chunks/Dfig3aVv.js", "_app/immutable/chunks/DrZ0Ux8T.js", "_app/immutable/chunks/D5APqZVA.js", "_app/immutable/chunks/BsFscbSx.js"];
     stylesheets6 = ["_app/immutable/assets/5.RrMblt9b.css"];
     fonts6 = [];
   }
@@ -6370,7 +6381,7 @@ var init__7 = __esm({
   ".svelte-kit/output/server/nodes/6.js"() {
     index7 = 6;
     component7 = async () => component_cache7 ??= (await Promise.resolve().then(() => (init_page_svelte5(), page_svelte_exports5))).default;
-    imports7 = ["_app/immutable/nodes/6.ti07lSck.js", "_app/immutable/chunks/BJYn_3Gp.js", "_app/immutable/chunks/BAkBpxy_.js", "_app/immutable/chunks/ni7G3-tv.js", "_app/immutable/chunks/DBxor342.js", "_app/immutable/chunks/oIn1ZAnG.js", "_app/immutable/chunks/_pddM9iv.js", "_app/immutable/chunks/DtN89Elg.js", "_app/immutable/chunks/CLG8Vc4N.js", "_app/immutable/chunks/OnvuAVbp.js", "_app/immutable/chunks/XR_rlDqv.js", "_app/immutable/chunks/weL_U30R.js"];
+    imports7 = ["_app/immutable/nodes/6.BWPACIc5.js", "_app/immutable/chunks/Cqr37zqI.js", "_app/immutable/chunks/CIHkJHWi.js", "_app/immutable/chunks/G-GGW_cX.js", "_app/immutable/chunks/DhRlghqI.js", "_app/immutable/chunks/AylrqfBP.js", "_app/immutable/chunks/D6M9iSKt.js", "_app/immutable/chunks/CicxTbKN.js", "_app/immutable/chunks/Dfig3aVv.js", "_app/immutable/chunks/DCKm003N.js", "_app/immutable/chunks/BsFscbSx.js"];
     stylesheets7 = ["_app/immutable/assets/6.DHHUaI-t.css"];
     fonts7 = [];
   }
@@ -6418,7 +6429,7 @@ var init__8 = __esm({
   ".svelte-kit/output/server/nodes/7.js"() {
     index8 = 7;
     component8 = async () => component_cache8 ??= (await Promise.resolve().then(() => (init_page_svelte6(), page_svelte_exports6))).default;
-    imports8 = ["_app/immutable/nodes/7.BOCFtZye.js", "_app/immutable/chunks/BJYn_3Gp.js", "_app/immutable/chunks/BAkBpxy_.js", "_app/immutable/chunks/DBxor342.js", "_app/immutable/chunks/oIn1ZAnG.js", "_app/immutable/chunks/CLG8Vc4N.js", "_app/immutable/chunks/D0jn2fjg.js", "_app/immutable/chunks/DtN89Elg.js", "_app/immutable/chunks/DNLUGN6H.js", "_app/immutable/chunks/BxsUKz-u.js", "_app/immutable/chunks/XR_rlDqv.js", "_app/immutable/chunks/weL_U30R.js"];
+    imports8 = ["_app/immutable/nodes/7.B6d0DSuD.js", "_app/immutable/chunks/Cqr37zqI.js", "_app/immutable/chunks/CIHkJHWi.js", "_app/immutable/chunks/DhRlghqI.js", "_app/immutable/chunks/AylrqfBP.js", "_app/immutable/chunks/Dfig3aVv.js", "_app/immutable/chunks/C-xpCbOk.js", "_app/immutable/chunks/CicxTbKN.js", "_app/immutable/chunks/BAVV4j-Y.js", "_app/immutable/chunks/D5APqZVA.js", "_app/immutable/chunks/BsFscbSx.js"];
     stylesheets8 = ["_app/immutable/assets/ProductCard.BmxxAwyf.css"];
     fonts8 = [];
   }
@@ -6520,7 +6531,7 @@ var init__9 = __esm({
   ".svelte-kit/output/server/nodes/8.js"() {
     index9 = 8;
     component9 = async () => component_cache9 ??= (await Promise.resolve().then(() => (init_page_svelte7(), page_svelte_exports7))).default;
-    imports9 = ["_app/immutable/nodes/8.CyhEOaMq.js", "_app/immutable/chunks/BJYn_3Gp.js", "_app/immutable/chunks/BAkBpxy_.js", "_app/immutable/chunks/ni7G3-tv.js", "_app/immutable/chunks/DBxor342.js", "_app/immutable/chunks/oIn1ZAnG.js", "_app/immutable/chunks/DtN89Elg.js", "_app/immutable/chunks/CLG8Vc4N.js", "_app/immutable/chunks/OnvuAVbp.js", "_app/immutable/chunks/BxsUKz-u.js", "_app/immutable/chunks/XR_rlDqv.js", "_app/immutable/chunks/weL_U30R.js"];
+    imports9 = ["_app/immutable/nodes/8.CA9UsbmI.js", "_app/immutable/chunks/Cqr37zqI.js", "_app/immutable/chunks/CIHkJHWi.js", "_app/immutable/chunks/G-GGW_cX.js", "_app/immutable/chunks/DhRlghqI.js", "_app/immutable/chunks/AylrqfBP.js", "_app/immutable/chunks/CicxTbKN.js", "_app/immutable/chunks/Dfig3aVv.js", "_app/immutable/chunks/DCKm003N.js", "_app/immutable/chunks/D5APqZVA.js", "_app/immutable/chunks/BsFscbSx.js"];
     stylesheets9 = ["_app/immutable/assets/8.gUjhRS5y.css"];
     fonts9 = [];
   }
@@ -6578,7 +6589,7 @@ var init__10 = __esm({
   ".svelte-kit/output/server/nodes/9.js"() {
     index10 = 9;
     component10 = async () => component_cache10 ??= (await Promise.resolve().then(() => (init_page_svelte8(), page_svelte_exports8))).default;
-    imports10 = ["_app/immutable/nodes/9.NHf6pkDa.js", "_app/immutable/chunks/BJYn_3Gp.js", "_app/immutable/chunks/BAkBpxy_.js", "_app/immutable/chunks/DBxor342.js", "_app/immutable/chunks/oIn1ZAnG.js", "_app/immutable/chunks/DtN89Elg.js", "_app/immutable/chunks/CLG8Vc4N.js", "_app/immutable/chunks/DNLUGN6H.js", "_app/immutable/chunks/D0jn2fjg.js", "_app/immutable/chunks/BxsUKz-u.js", "_app/immutable/chunks/XR_rlDqv.js", "_app/immutable/chunks/weL_U30R.js"];
+    imports10 = ["_app/immutable/nodes/9.DOpT7_pL.js", "_app/immutable/chunks/Cqr37zqI.js", "_app/immutable/chunks/CIHkJHWi.js", "_app/immutable/chunks/DhRlghqI.js", "_app/immutable/chunks/AylrqfBP.js", "_app/immutable/chunks/CicxTbKN.js", "_app/immutable/chunks/Dfig3aVv.js", "_app/immutable/chunks/BAVV4j-Y.js", "_app/immutable/chunks/C-xpCbOk.js", "_app/immutable/chunks/D5APqZVA.js", "_app/immutable/chunks/BsFscbSx.js"];
     stylesheets10 = ["_app/immutable/assets/ProductCard.BmxxAwyf.css", "_app/immutable/assets/9.B4Zy1gOR.css"];
     fonts10 = [];
   }
@@ -6625,7 +6636,7 @@ var init__11 = __esm({
   ".svelte-kit/output/server/nodes/10.js"() {
     index11 = 10;
     component11 = async () => component_cache11 ??= (await Promise.resolve().then(() => (init_page_svelte9(), page_svelte_exports9))).default;
-    imports11 = ["_app/immutable/nodes/10.j4rUEvmt.js", "_app/immutable/chunks/BJYn_3Gp.js", "_app/immutable/chunks/BAkBpxy_.js", "_app/immutable/chunks/DBxor342.js", "_app/immutable/chunks/DtN89Elg.js", "_app/immutable/chunks/CLG8Vc4N.js", "_app/immutable/chunks/DNLUGN6H.js", "_app/immutable/chunks/BxsUKz-u.js", "_app/immutable/chunks/XR_rlDqv.js", "_app/immutable/chunks/weL_U30R.js"];
+    imports11 = ["_app/immutable/nodes/10.CdIP56up.js", "_app/immutable/chunks/Cqr37zqI.js", "_app/immutable/chunks/CIHkJHWi.js", "_app/immutable/chunks/DhRlghqI.js", "_app/immutable/chunks/CicxTbKN.js", "_app/immutable/chunks/Dfig3aVv.js", "_app/immutable/chunks/BAVV4j-Y.js", "_app/immutable/chunks/D5APqZVA.js", "_app/immutable/chunks/BsFscbSx.js"];
     stylesheets11 = ["_app/immutable/assets/10.DK2ltYAs.css"];
     fonts11 = [];
   }
@@ -6635,6 +6646,7 @@ var init__11 = __esm({
 init_devalue();
 init_utils2();
 init_render_context();
+init_errors();
 init_clsx();
 
 // node_modules/@sveltejs/kit/src/exports/index.js
@@ -7633,7 +7645,7 @@ var options = {
 		<div class="error">
 			<span class="status">` + status + '</span>\n			<div class="message">\n				<h1>' + message + "</h1>\n			</div>\n		</div>\n	</body>\n</html>\n"
   },
-  version_hash: "14192t1"
+  version_hash: "1kdtizd"
 };
 async function get_hooks() {
   let handle;
@@ -11602,7 +11614,7 @@ var manifest = (() => {
     assets: /* @__PURE__ */ new Set([]),
     mimeTypes: {},
     _: {
-      client: { start: "_app/immutable/entry/start.BvrD7tro.js", app: "_app/immutable/entry/app.Dj7-BHou.js", imports: ["_app/immutable/entry/start.BvrD7tro.js", "_app/immutable/chunks/XR_rlDqv.js", "_app/immutable/chunks/BAkBpxy_.js", "_app/immutable/chunks/weL_U30R.js", "_app/immutable/entry/app.Dj7-BHou.js", "_app/immutable/chunks/BAkBpxy_.js", "_app/immutable/chunks/BJYn_3Gp.js", "_app/immutable/chunks/DBxor342.js", "_app/immutable/chunks/DxY-rszY.js"], stylesheets: [], fonts: [], uses_env_dynamic_public: false },
+      client: { start: "_app/immutable/entry/start.kb5_ZkR-.js", app: "_app/immutable/entry/app.DzzP6_OS.js", imports: ["_app/immutable/entry/start.kb5_ZkR-.js", "_app/immutable/chunks/BsFscbSx.js", "_app/immutable/chunks/CIHkJHWi.js", "_app/immutable/entry/app.DzzP6_OS.js", "_app/immutable/chunks/CIHkJHWi.js", "_app/immutable/chunks/Cqr37zqI.js", "_app/immutable/chunks/DhRlghqI.js", "_app/immutable/chunks/B3YjXIv-.js"], stylesheets: [], fonts: [], uses_env_dynamic_public: false },
       nodes: [
         __memo(() => Promise.resolve().then(() => (init__(), __exports))),
         __memo(() => Promise.resolve().then(() => (init__2(), __exports2))),

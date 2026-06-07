@@ -1,6 +1,7 @@
 import * as devalue from "devalue";
 import { t as text_encoder, b as base64_encode, a as base64_decode } from "./utils2.js";
-import { e as experimental_async_required, g as get_render_context, h as hydratable_serialization_failed } from "./render-context.js";
+import { g as get_render_context, h as hydratable_serialization_failed } from "./render-context.js";
+import { e as experimental_async_required } from "./errors.js";
 import "clsx";
 import { json, text } from "@sveltejs/kit";
 import { SvelteKitError, HttpError } from "@sveltejs/kit/internal";

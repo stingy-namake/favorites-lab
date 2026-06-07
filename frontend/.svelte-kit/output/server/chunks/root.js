@@ -1,5 +1,6 @@
-import { D as DEV, l as lifecycle_outside_component, a as await_invalid, g as get_render_context, i as invalid_id_prefix, b as invalid_csp } from "./render-context.js";
+import { D as DEV, a as await_invalid, g as get_render_context, i as invalid_id_prefix, b as invalid_csp } from "./render-context.js";
 import { clsx as clsx$1 } from "clsx";
+import { a as set_ssr_context, s as ssr_context, p as push$1, b as pop$1, c as setContext } from "./context.js";
 import * as devalue from "devalue";
 const DERIVED = 1 << 1;
 const EFFECT = 1 << 2;
@@ -117,7 +118,7 @@ let component_context = null;
 function set_component_context(context) {
   component_context = context;
 }
-function push$1(props, runes = false, fn) {
+function push(props, runes = false, fn) {
   component_context = {
     p: component_context,
     i: false,
@@ -132,7 +133,7 @@ function push$1(props, runes = false, fn) {
     l: null
   };
 }
-function pop$1(component) {
+function pop(component) {
   var context = (
     /** @type {ComponentContext} */
     component_context
@@ -2764,7 +2765,7 @@ function _mount(Component, { target, anchor, props = {}, events, context, intro 
         }
       },
       (anchor_node2) => {
-        push$1({});
+        push({});
         var ctx = (
           /** @type {ComponentContext} */
           component_context
@@ -2789,7 +2790,7 @@ function _mount(Component, { target, anchor, props = {}, events, context, intro 
             throw HYDRATION_ERROR;
           }
         }
-        pop$1();
+        pop();
       },
       transformError
     );
@@ -3125,46 +3126,6 @@ function abort() {
   controller?.abort(STALE_REACTION);
   controller = null;
 }
-var ssr_context = null;
-function set_ssr_context(v) {
-  ssr_context = v;
-}
-function getContext(key) {
-  const context_map = get_or_init_context_map();
-  const result = (
-    /** @type {T} */
-    context_map.get(key)
-  );
-  return result;
-}
-function setContext(key, context) {
-  get_or_init_context_map().set(key, context);
-  return context;
-}
-function get_or_init_context_map(name) {
-  if (ssr_context === null) {
-    lifecycle_outside_component();
-  }
-  return ssr_context.c ??= new Map(get_parent_context(ssr_context) || void 0);
-}
-function push(fn) {
-  ssr_context = { p: ssr_context, c: null, r: null };
-}
-function pop() {
-  ssr_context = /** @type {SSRContext} */
-  ssr_context.p;
-}
-function get_parent_context(ssr_context2) {
-  let parent = ssr_context2.p;
-  while (parent !== null) {
-    const context_map = parent.c;
-    if (context_map !== null) {
-      return context_map;
-    }
-    parent = parent.p;
-  }
-  return null;
-}
 function unresolved_hydratable(key, stack) {
   {
     console.warn(`https://svelte.dev/e/unresolved_hydratable`);
@@ -3425,10 +3386,10 @@ class Renderer {
    * @returns {void}
    */
   component(fn, component_fn) {
-    push();
+    push$1();
     const child = this.child(fn);
     child.#is_component_body = true;
-    pop();
+    pop$1();
   }
   /**
    * @param {Record<string, any>} attrs
@@ -4127,10 +4088,8 @@ export {
   attr_class as a,
   ensure_array_like as b,
   attr as c,
-  ssr_context as d,
+  clsx as d,
   escape_html as e,
-  clsx as f,
-  getContext as g,
   noop as n,
   root as r,
   safe_not_equal as s

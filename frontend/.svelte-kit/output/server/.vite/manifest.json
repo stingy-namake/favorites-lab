@@ -25,6 +25,17 @@
       "_api.js"
     ]
   },
+  "_context.js": {
+    "file": "chunks/context.js",
+    "name": "context",
+    "imports": [
+      "_errors.js"
+    ]
+  },
+  "_errors.js": {
+    "file": "chunks/errors.js",
+    "name": "errors"
+  },
   "_exports.js": {
     "file": "chunks/exports.js",
     "name": "exports"
@@ -52,7 +63,8 @@
     "file": "chunks/root.js",
     "name": "root",
     "imports": [
-      "_render-context.js"
+      "_render-context.js",
+      "_context.js"
     ]
   },
   "_server.js": {
@@ -72,7 +84,8 @@
     "name": "utils",
     "imports": [
       "_utils2.js",
-      "_render-context.js"
+      "_render-context.js",
+      "_errors.js"
     ]
   },
   "_utils2.js": {
@@ -100,7 +113,8 @@
       "_state.svelte.js",
       "_exports.js",
       "_utils2.js",
-      "_index.js"
+      "_index.js",
+      "_context.js"
     ]
   },
   "node_modules/@sveltejs/kit/src/runtime/server/index.js": {
@@ -131,7 +145,7 @@
       "_state.svelte.js"
     ],
     "css": [
-      "_app/immutable/assets/_layout.Hk6_iXHW.css"
+      "_app/immutable/assets/_layout.CBBjVzR5.css"
     ]
   },
   "src/routes/+page.svelte": {
@@ -140,13 +154,10 @@
     "src": "src/routes/+page.svelte",
     "isEntry": true,
     "imports": [
-      "_root.js",
-      "_exports.js",
-      "_utils2.js",
-      "_state.svelte.js"
+      "_context.js"
     ],
     "css": [
-      "_app/immutable/assets/_page.2AiwExnX.css"
+      "_app/immutable/assets/_page.CDklFd8e.css"
     ]
   },
   "src/routes/admin/+page.svelte": {
