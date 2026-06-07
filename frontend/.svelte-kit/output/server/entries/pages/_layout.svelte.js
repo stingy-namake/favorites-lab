@@ -1,5 +1,5 @@
 import "clsx";
-import { a as attr_class, e as escape_html, b as ensure_array_like, c as attr } from "../../chunks/root.js";
+import { a as attr_class, e as escape_html, b as ensure_array_like, c as attr, d as derived } from "../../chunks/root.js";
 import { g as getCartStore } from "../../chunks/cart.svelte.js";
 import "@sveltejs/kit/internal";
 import "../../chunks/exports.js";
@@ -58,6 +58,39 @@ function Snackbar($$renderer, $$props) {
     $$renderer2.push(`<!--]-->`);
   });
 }
+let selectedProduct = null;
+function getProductOverlay() {
+  function open(product) {
+    selectedProduct = product;
+  }
+  function close() {
+    selectedProduct = null;
+  }
+  return {
+    get selectedProduct() {
+      return selectedProduct;
+    },
+    open,
+    close
+  };
+}
+function ProductOverlay($$renderer, $$props) {
+  $$renderer.component(($$renderer2) => {
+    const overlay = getProductOverlay();
+    let p = derived(() => overlay.selectedProduct);
+    if (p()) {
+      $$renderer2.push("<!--[0-->");
+      $$renderer2.push(`<div class="overlay svelte-kt84xv"><div class="overlay-content svelte-kt84xv"><button class="overlay-close svelte-kt84xv" aria-label="Close"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"></path></svg></button> <div class="overlay-layout svelte-kt84xv"><div class="overlay-img svelte-kt84xv"><img${attr("src", p().image)}${attr("alt", p().title)} class="svelte-kt84xv"/></div> <div class="overlay-info svelte-kt84xv"><span class="overlay-cat svelte-kt84xv">${escape_html(p().category)}</span> <h2 class="overlay-title svelte-kt84xv">${escape_html(p().title)}</h2> <div class="overlay-rating svelte-kt84xv"><svg width="16" height="16" viewBox="0 0 24 24" fill="#f59e0b"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg> <span>${escape_html(p().rating.rate.toFixed(1))}</span> <span class="overlay-count svelte-kt84xv">(${escape_html(p().rating.count)} reviews)</span></div> <p class="overlay-desc svelte-kt84xv">${escape_html(p().description)}</p> <div class="overlay-foot svelte-kt84xv"><span class="overlay-price svelte-kt84xv">$${escape_html(p().price.toFixed(2))}</span> `);
+      {
+        $$renderer2.push("<!--[-1-->");
+      }
+      $$renderer2.push(`<!--]--></div></div></div></div></div>`);
+    } else {
+      $$renderer2.push("<!--[-1-->");
+    }
+    $$renderer2.push(`<!--]-->`);
+  });
+}
 function _layout($$renderer, $$props) {
   $$renderer.component(($$renderer2) => {
     let { children } = $$props;
@@ -84,6 +117,8 @@ function _layout($$renderer, $$props) {
     CartPanel($$renderer2, { open: cartOpen });
     $$renderer2.push(`<!----> `);
     Snackbar($$renderer2);
+    $$renderer2.push(`<!----> `);
+    ProductOverlay($$renderer2);
     $$renderer2.push(`<!----> <main class="container" style="padding-top:2rem;padding-bottom:4rem;">`);
     children($$renderer2);
     $$renderer2.push(`<!----></main> <footer class="footer svelte-12qhfyh"><div class="container"><span class="svelte-12qhfyh">kishin echoes · powered by FakeStoreAPI</span></div></footer>`);

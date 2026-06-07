@@ -58,7 +58,7 @@ function _page($$renderer, $$props) {
         $$renderer2.push(`<div class="fav-item svelte-ud7knm">`);
         if (fav.product) {
           $$renderer2.push("<!--[0-->");
-          $$renderer2.push(`<div class="fav-item-img svelte-ud7knm"><img${attr("src", fav.product.image)}${attr("alt", fav.product.title)} class="svelte-ud7knm"/></div> <div class="fav-item-body svelte-ud7knm"><a${attr("href", `/products/${fav.product_id}`)} class="fav-item-title svelte-ud7knm">${escape_html(fav.product.title)}</a> <span class="fav-item-price svelte-ud7knm">$${escape_html(fav.product.price.toFixed(2))}</span> <div class="fav-item-actions svelte-ud7knm"><button class="primary" style="flex:1;font-size:0.8rem;font-weight:700;">ADD TO CART</button> <button class="secondary" style="font-size:0.8rem;">REMOVE</button></div></div>`);
+          $$renderer2.push(`<div class="fav-item-img svelte-ud7knm"><img${attr("src", fav.product.image)}${attr("alt", fav.product.title)} class="svelte-ud7knm"/></div> <div class="fav-item-body svelte-ud7knm"><button class="fav-item-title svelte-ud7knm">${escape_html(fav.product.title)}</button> <span class="fav-item-price svelte-ud7knm">$${escape_html(fav.product.price.toFixed(2))}</span> <div class="fav-item-actions svelte-ud7knm"><button class="primary" style="flex:1;font-size:0.8rem;font-weight:700;">ADD TO CART</button> <button class="secondary" style="font-size:0.8rem;">REMOVE</button></div></div>`);
         } else {
           $$renderer2.push("<!--[-1-->");
         }

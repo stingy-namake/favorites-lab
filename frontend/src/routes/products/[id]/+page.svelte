@@ -23,10 +23,14 @@
     loading = false;
   });
 
-  function addToCart() { if (product && auth.isAuthenticated) cart.add(product.id); }
+  function addToCart() {
+    if (!auth.isAuthenticated) { goto('/auth/login'); return; }
+    if (product) cart.add(product.id);
+  }
   function goToCart() { goto('/cart'); }
   function toggleFav() {
-    if (!product || !auth.isAuthenticated) return;
+    if (!auth.isAuthenticated) { goto('/auth/login'); return; }
+    if (!product) return;
     if (favs.isFavorited(product.id)) favs.remove(product.id);
     else favs.add(product.id);
   }
@@ -56,24 +60,20 @@
         </span>
       </div>
       <p class="detail-desc">{product.description}</p>
-      {#if auth.isAuthenticated}
-        <div class="detail-actions">
-          <button class="primary detail-cart-btn btn-animate" class:in-cart={cart.items.some(i => i.product_id === product.id)} onclick={cart.items.some(i => i.product_id === product.id) ? goToCart : addToCart}>
-            {cart.items.some(i => i.product_id === product.id) ? 'GO TO CART' : 'ADD TO CART'}
-          </button>
-          <button class="detail-fav-btn btn-animate" class:faved={favs.isFavorited(product.id)} onclick={toggleFav}>
-            {#if favs.isFavorited(product.id)}
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-              FAVORITED
-            {:else}
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-              ADD TO FAVORITES
-            {/if}
-          </button>
-        </div>
-      {:else}
-        <p style="color:var(--text-muted);font-size:0.9rem;margin-top:1rem;"><a href="/auth/login" style="color:var(--primary);font-weight:600;">Login</a> to add to cart or favorites.</p>
-      {/if}
+      <div class="detail-actions">
+        <button class="primary detail-cart-btn btn-animate" class:in-cart={cart.items.some(i => i.product_id === product.id)} onclick={cart.items.some(i => i.product_id === product.id) ? goToCart : addToCart}>
+          {cart.items.some(i => i.product_id === product.id) ? 'GO TO CART' : 'ADD TO CART'}
+        </button>
+        <button class="detail-fav-btn btn-animate" class:faved={favs.isFavorited(product.id)} onclick={toggleFav}>
+          {#if favs.isFavorited(product.id)}
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            FAVORITED
+          {:else}
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            ADD TO FAVORITES
+          {/if}
+        </button>
+      </div>
     </div>
   </div>
 {/if}

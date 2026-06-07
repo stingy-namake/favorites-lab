@@ -77,7 +77,7 @@
 </script>
 
 <nav class="nav">
-  <a href="/" class="nav-brand">kishin echoes</a>
+  <a href="/" class="nav-brand">Kishin Echoes</a>
   <div class="nav-links">
     <a href="/products">PRODUCTS</a>
     {#if auth.isAuthenticated}
@@ -130,7 +130,7 @@
 
 <footer class="footer">
   <div class="container">
-    <span>kishin echoes &middot; powered by FakeStoreAPI</span>
+    <span>Kishin Echoes &middot; powered by FakeStoreAPI</span>
   </div>
 </footer>
 

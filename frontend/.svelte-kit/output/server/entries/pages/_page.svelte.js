@@ -13,10 +13,6 @@ function Carousel($$renderer, $$props) {
       $$renderer2.push("<!--[0-->");
       $$renderer2.push(`<p class="empty-state">Loading...</p>`);
     }
-    $$renderer2.push(`<!--]--> `);
-    {
-      $$renderer2.push("<!--[-1-->");
-    }
     $$renderer2.push(`<!--]-->`);
   });
 }

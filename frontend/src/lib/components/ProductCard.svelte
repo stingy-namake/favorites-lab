@@ -17,7 +17,7 @@
   let imgLoaded = $state(false);
 
   function addToCart() {
-    if (!auth.isAuthenticated) return;
+    if (!auth.isAuthenticated) { goto('/auth/login'); return; }
     cart.add(product.id);
   }
 
@@ -26,7 +26,7 @@
   }
 
   function toggleFav() {
-    if (!auth.isAuthenticated) return;
+    if (!auth.isAuthenticated) { goto('/auth/login'); return; }
     if (favs.isFavorited(product.id)) favs.remove(product.id);
     else favs.add(product.id);
   }
@@ -61,20 +61,18 @@
         </span>
       </div>
     </div>
-    {#if auth.isAuthenticated}
-      <div class="card-actions">
-        <button class="primary btn-animate" class:in-cart={cart.items.some(i => i.product_id === product.id)} onclick={cart.items.some(i => i.product_id === product.id) ? goToCart : addToCart}>
-          {cart.items.some(i => i.product_id === product.id) ? 'GO TO CART' : 'ADD TO CART'}
-        </button>
-        <button class="fav-btn btn-animate" class:faved={favs.isFavorited(product.id)} onclick={toggleFav}>
-          {#if favs.isFavorited(product.id)}
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-          {:else}
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-          {/if}
-        </button>
-      </div>
-    {/if}
+    <div class="card-actions">
+      <button class="primary btn-animate" class:in-cart={cart.items.some(i => i.product_id === product.id)} onclick={cart.items.some(i => i.product_id === product.id) ? goToCart : addToCart}>
+        {cart.items.some(i => i.product_id === product.id) ? 'GO TO CART' : 'ADD TO CART'}
+      </button>
+      <button class="fav-btn btn-animate" class:faved={favs.isFavorited(product.id)} onclick={toggleFav}>
+        {#if favs.isFavorited(product.id)}
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        {:else}
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        {/if}
+      </button>
+    </div>
   </div>
 </div>
 

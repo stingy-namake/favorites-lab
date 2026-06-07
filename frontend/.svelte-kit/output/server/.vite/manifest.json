@@ -11,7 +11,7 @@
     ]
   },
   "_ProductCard.svelte_svelte_type_style_lang.js": {
-    "file": "_app/immutable/assets/ProductCard.BXUiSKca.css",
+    "file": "_app/immutable/assets/ProductCard.DeO3eVl-.css",
     "src": "_ProductCard.svelte_svelte_type_style_lang.js"
   },
   "_api.js": {
@@ -145,7 +145,7 @@
       "_state.svelte.js"
     ],
     "css": [
-      "_app/immutable/assets/_layout.CBBjVzR5.css"
+      "_app/immutable/assets/_layout.DlTMnXOc.css"
     ]
   },
   "src/routes/+page.svelte": {
@@ -157,7 +157,7 @@
       "_context.js"
     ],
     "css": [
-      "_app/immutable/assets/_page.CdkkBLJP.css"
+      "_app/immutable/assets/_page.De1d95t0.css"
     ]
   },
   "src/routes/admin/+page.svelte": {
@@ -233,7 +233,7 @@
       "_state.svelte.js"
     ],
     "css": [
-      "_app/immutable/assets/ProductCard.BXUiSKca.css"
+      "_app/immutable/assets/ProductCard.DeO3eVl-.css"
     ]
   },
   "src/routes/favorites/+page.svelte": {
@@ -249,7 +249,7 @@
       "_state.svelte.js"
     ],
     "css": [
-      "_app/immutable/assets/_page.gUjhRS5y.css"
+      "_app/immutable/assets/_page.C24zKzHI.css"
     ]
   },
   "src/routes/products/+page.svelte": {
@@ -265,7 +265,7 @@
     ],
     "css": [
       "_app/immutable/assets/_page.B4Zy1gOR.css",
-      "_app/immutable/assets/ProductCard.BXUiSKca.css"
+      "_app/immutable/assets/ProductCard.DeO3eVl-.css"
     ]
   },
   "src/routes/products/[id]/+page.svelte": {

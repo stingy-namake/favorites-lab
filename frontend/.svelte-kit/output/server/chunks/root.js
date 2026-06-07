@@ -4088,8 +4088,9 @@ export {
   attr_class as a,
   ensure_array_like as b,
   attr as c,
-  clsx as d,
+  derived as d,
   escape_html as e,
+  clsx as f,
   noop as n,
   root as r,
   safe_not_equal as s
