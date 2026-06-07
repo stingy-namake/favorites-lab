@@ -1,6 +1,7 @@
+import { dev } from '$app/environment';
 import type { AuthResponse, Product, PaginatedResponse, CartItem, FavoriteItem, User } from './types';
 
-const BASE = '/api';
+const BASE = dev ? '/api' : 'https://favorites-lab.email-escolar174.workers.dev';
 
 function getToken(): string | null {
   if (typeof window === 'undefined') return null;
