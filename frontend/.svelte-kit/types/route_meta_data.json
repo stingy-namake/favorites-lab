@@ -1,0 +1,11 @@
+{
+	"/": [],
+	"/admin": [],
+	"/auth/login": [],
+	"/auth/signup": [],
+	"/cart": [],
+	"/categories/[slug]": [],
+	"/favorites": [],
+	"/products": [],
+	"/products/[id]": []
+}

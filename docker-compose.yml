@@ -1,0 +1,33 @@
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "8787:8787"
+    volumes:
+      - ./backend/src:/app/src
+      - ./backend/migrations:/app/migrations
+      - ./backend/wrangler.toml:/app/wrangler.toml
+      - ./backend/package.json:/app/package.json
+    environment:
+      - NODE_ENV=development
+      - JWT_SECRET=dev-secret
+    command: >
+      sh -c "npm install && npx wrangler d1 migrations apply fakestore-db --local && npx wrangler dev --local --port 8787 --ip 0.0.0.0"
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend/src:/app/src
+      - ./frontend/package.json:/app/package.json
+      - ./frontend/svelte.config.js:/app/svelte.config.js
+      - ./frontend/vite.config.ts:/app/vite.config.ts
+      - ./frontend/tsconfig.json:/app/tsconfig.json
+    environment:
+      - NODE_ENV=development
+      - API_PROXY_TARGET=http://backend:8787
+    depends_on:
+      - backend
+    command: >
+      sh -c "npm install && npm run dev -- --host 0.0.0.0"
