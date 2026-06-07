@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 
 // Mock cache utils
 vi.mock('../utils/cache', () => ({
@@ -33,7 +33,7 @@ describe('Products Routes', () => {
   it('returns paginated products', async () => {
     const res = await products.request('/?limit=1&page=1', {}, mockEnv as any);
     expect(res.status).toBe(200);
-    const data = await res.json();
+    const data: any = await res.json();
     expect(data.items).toHaveLength(1);
     expect(data.total).toBe(2);
     expect(data.hasMore).toBe(true);
@@ -42,7 +42,7 @@ describe('Products Routes', () => {
   it('filters by category', async () => {
     const res = await products.request('/?category=test', {}, mockEnv as any);
     expect(res.status).toBe(200);
-    const data = await res.json();
+    const data: any = await res.json();
     expect(data.items).toHaveLength(1);
     expect(data.items[0].category).toBe('test');
   });
