@@ -15,6 +15,6 @@ cd ../frontend
 npm run build
 
 echo "--- Frontend: Deploying to Pages ---"
-npx wrangler pages deploy .svelte-kit/cloudflare --project-name fakestore-frontend
+npx wrangler pages deploy .svelte-kit/cloudflare --project-name favorites-lab
 
 echo "=== Done! ==="
