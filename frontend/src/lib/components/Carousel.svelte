@@ -109,12 +109,12 @@
       <button class="carousel-arrow carousel-arrow-right" onclick={next} aria-label="Next">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m9 5 7 7-7 7"/></svg>
       </button>
+    </div>
 
-      <div class="carousel-dots">
-        {#each products as _, i}
-          <button class="dot" class:active={i === current} onclick={() => goTo(i)} aria-label={`Slide ${i + 1}`}></button>
-        {/each}
-      </div>
+    <div class="carousel-dots">
+      {#each products as _, i}
+        <button class="dot" class:active={i === current} onclick={() => goTo(i)} aria-label={`Slide ${i + 1}`}></button>
+      {/each}
     </div>
 
     <div class="product-grid">
@@ -225,7 +225,7 @@
   .carousel-arrow-left { left:1rem; }
   .carousel-arrow-right { right:1rem; }
 
-  .carousel-dots { display:flex; justify-content:center; gap:0.5rem; padding:1rem 0; }
+  .carousel-dots { display:flex; justify-content:center; gap:0.5rem; padding-top:0.75rem; }
   .dot { width:10px; height:10px; padding:0; border-radius:50%; border:2px solid var(--border); background:transparent; cursor:pointer; transition:0.15s; }
   .dot.active { background:var(--primary); border-color:var(--primary); }
 
