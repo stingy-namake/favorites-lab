@@ -12,7 +12,6 @@ build/
 out/
 
 .svelte-kit/
-wrangler.toml
 
 *.pyc
 __pycache__/
