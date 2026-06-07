@@ -1,6 +1,5 @@
 <script lang="ts">
   import { onMount, onDestroy } from 'svelte';
-  import { fly } from 'svelte/transition';
   import { api } from '$lib/api';
   import type { Product } from '$lib/types';
   import { getAuthStore } from '$lib/stores/auth.svelte';
@@ -72,29 +71,29 @@
   <div class="carousel-section">
     <h2>{title}</h2>
     <div class="carousel-wrap">
-      {#key current}
-        <div class="carousel-item" transition:fly={{ y: 20, duration: 400 }}>
-          <button class="carousel-img" onclick={() => openOverlay(products[current])}>
-            <img src={products[current].image} alt={products[current].title} loading="lazy" />
+      {#each products as product, i (product.id)}
+        <div class="carousel-item" class:active={i === current}>
+          <button class="carousel-img" onclick={() => openOverlay(product)}>
+            <img src={product.image} alt={product.title} loading="lazy" />
           </button>
           <div class="carousel-overlay">
-            <span class="carousel-cat">{products[current].category}</span>
-            <button class="carousel-title" onclick={() => openOverlay(products[current])}>{products[current].title}</button>
+            <span class="carousel-cat">{product.category}</span>
+            <button class="carousel-title" onclick={() => openOverlay(product)}>{product.title}</button>
             <div class="carousel-rating">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="#f59e0b"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-              <span>{products[current].rating.rate}</span>
+              <span>{product.rating.rate}</span>
             </div>
-            <p class="carousel-desc">{products[current].description.slice(0, 120)}{products[current].description.length > 120 ? '…' : ''}</p>
+            <p class="carousel-desc">{product.description.slice(0, 120)}{product.description.length > 120 ? '…' : ''}</p>
             <div class="carousel-foot">
-              <span class="carousel-price">${products[current].price.toFixed(2)}</span>
+              <span class="carousel-price">${product.price.toFixed(2)}</span>
               {#if auth.isAuthenticated}
-                <button class="primary carousel-btn" onclick={() => addToCart(products[current].id)}>ADD TO CART</button>
+                <button class="primary carousel-btn" onclick={() => addToCart(product.id)}>ADD TO CART</button>
               {/if}
             </div>
           </div>
           {#if auth.isAuthenticated}
-            <button class="carousel-fav" class:faved={favs.isFavorited(products[current].id)} onclick={() => toggleFav(products[current].id)}>
-              {#if favs.isFavorited(products[current].id)}
+            <button class="carousel-fav" class:faved={favs.isFavorited(product.id)} onclick={() => toggleFav(product.id)}>
+              {#if favs.isFavorited(product.id)}
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
               {:else}
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
@@ -102,7 +101,7 @@
             </button>
           {/if}
         </div>
-      {/key}
+      {/each}
 
       <button class="carousel-arrow carousel-arrow-left" onclick={prev} aria-label="Previous">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m15 19-7-7 7-7"/></svg>
@@ -201,7 +200,8 @@
 
   .carousel-wrap { position:relative; border-radius:var(--radius-lg); overflow:hidden; background:var(--bg-card); }
 
-  .carousel-item { display:flex; padding:0 3.5rem; }
+  .carousel-item { position:absolute; top:0; left:0; width:100%; padding:0 3.5rem; display:flex; opacity:0; transform:translateY(10px); transition:opacity 0.4s ease, transform 0.4s ease; pointer-events:none; }
+  .carousel-item.active { position:relative; opacity:1; transform:translateY(0); pointer-events:auto; }
 
   .carousel-img { width:40%; flex-shrink:0; display:flex; align-items:center; justify-content:center; padding:2rem; background:var(--bg-alt); border:none; border-radius:0; cursor:pointer; }
   .carousel-img img { max-height:280px; max-width:100%; object-fit:contain; }
