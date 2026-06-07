@@ -17,8 +17,6 @@
   let current = $state(0);
   let interval: ReturnType<typeof setInterval> | null = null;
   let selectedProduct = $state<Product | null>(null);
-  let wrapEl = $state<HTMLDivElement | undefined>(undefined);
-  let wrapMinH = $state(0);
 
   onMount(async () => {
     try {
@@ -56,19 +54,6 @@
     else favs.add(id);
   }
 
-  $effect(() => {
-    if (!products.length || !wrapEl) return;
-    const ro = new ResizeObserver(() => {
-      const items = wrapEl!.querySelectorAll('.carousel-item');
-      let maxH = 0;
-      items.forEach(el => { const h = (el as HTMLElement).offsetHeight; if (h > maxH) maxH = h; });
-      if (maxH > wrapMinH) wrapMinH = maxH;
-    });
-    const items = wrapEl.querySelectorAll('.carousel-item');
-    items.forEach(el => ro.observe(el));
-    return () => ro.disconnect();
-  });
-
   function openOverlay(p: Product) {
     selectedProduct = p;
     stop();
@@ -85,7 +70,7 @@
 {:else if products.length > 0}
   <div class="carousel-section">
     <h2>{title}</h2>
-    <div class="carousel-wrap" bind:this={wrapEl} style="min-height:{wrapMinH}px">
+    <div class="carousel-wrap">
       {#each products as product, i (product.id)}
         <div class="carousel-item" class:active={i === current}>
           <button class="carousel-img" onclick={() => openOverlay(product)}>
@@ -213,9 +198,9 @@
   .carousel-section { padding:1.5rem 0; }
   .carousel-section h2 { font-size:1.25rem; font-weight:700; margin-bottom:1rem; }
 
-  .carousel-wrap { position:relative; border-radius:var(--radius-lg); overflow:hidden; background:var(--bg-card); transition:min-height 0.3s ease; }
+  .carousel-wrap { position:relative; border-radius:var(--radius-lg); overflow:hidden; background:var(--bg-card); height:340px; }
 
-  .carousel-item { position:absolute; top:0; left:0; width:100%; padding:0 3.5rem; display:flex; opacity:0; transform:translateY(10px); transition:opacity 0.4s ease, transform 0.4s ease; pointer-events:none; }
+  .carousel-item { position:absolute; top:0; left:0; width:100%; height:100%; padding:0 3.5rem; display:flex; opacity:0; transform:translateY(10px); transition:opacity 0.4s ease, transform 0.4s ease; pointer-events:none; }
   .carousel-item.active { position:relative; opacity:1; transform:translateY(0); pointer-events:auto; }
 
   .carousel-img { width:40%; flex-shrink:0; display:flex; align-items:center; justify-content:center; padding:2rem; background:var(--bg-alt); border:none; border-radius:0; cursor:pointer; }
