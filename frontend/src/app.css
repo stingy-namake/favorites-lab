@@ -70,6 +70,8 @@ button.primary {
   font-weight: 600;
 }
 button.primary:hover { background: var(--primary-hover); }
+button.primary.in-cart { background:var(--bg-alt); color:var(--text-muted); border:1px solid var(--border); font-weight:600; }
+button.primary.in-cart:hover { background:var(--border); color:var(--text); border-color:var(--text-muted); }
 
 button.secondary {
   background: transparent;

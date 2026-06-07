@@ -131,7 +131,7 @@
       "_state.svelte.js"
     ],
     "css": [
-      "_app/immutable/assets/_layout.BeaFrEZ9.css"
+      "_app/immutable/assets/_layout.Hk6_iXHW.css"
     ]
   },
   "src/routes/+page.svelte": {
@@ -146,8 +146,7 @@
       "_state.svelte.js"
     ],
     "css": [
-      "_app/immutable/assets/_page.2rvr3WdR.css",
-      "_app/immutable/assets/ProductCard.BXUiSKca.css"
+      "_app/immutable/assets/_page.2AiwExnX.css"
     ]
   },
   "src/routes/admin/+page.svelte": {

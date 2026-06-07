@@ -5812,8 +5812,39 @@ async function update(id, quantity) {
   await fetchCart();
 }
 async function remove(id) {
+  const item = items.find((i) => i.id === id);
+  if (item) {
+    lastRemoved = {
+      product_id: item.product_id,
+      quantity: item.quantity,
+      id: item.id
+    };
+    if (undoTimeout) clearTimeout(undoTimeout);
+    undoTimeout = setTimeout(
+      () => {
+        lastRemoved = null;
+      },
+      4e3
+    );
+  }
   await api.cart.remove(id);
   await fetchCart();
+}
+async function undoRemove() {
+  if (!lastRemoved) return;
+  await add(lastRemoved.product_id, lastRemoved.quantity);
+  lastRemoved = null;
+  if (undoTimeout) {
+    clearTimeout(undoTimeout);
+    undoTimeout = null;
+  }
+}
+function dismissUndo() {
+  lastRemoved = null;
+  if (undoTimeout) {
+    clearTimeout(undoTimeout);
+    undoTimeout = null;
+  }
 }
 function total() {
   return items.reduce((sum, item) => sum + (item.product?.price ?? 0) * item.quantity, 0);
@@ -5832,19 +5863,26 @@ function getCartStore() {
     get total() {
       return total();
     },
+    get lastRemoved() {
+      return lastRemoved;
+    },
     fetchCart,
     add,
     update,
-    remove
+    remove,
+    undoRemove,
+    dismissUndo
   };
 }
-var items, loading;
+var items, loading, lastRemoved, undoTimeout;
 var init_cart_svelte = __esm({
   ".svelte-kit/output/server/chunks/cart.svelte.js"() {
     init_clsx();
     init_api();
     items = [];
     loading = false;
+    lastRemoved = null;
+    undoTimeout = null;
   }
 });
 
@@ -5918,6 +5956,18 @@ function CartPanel($$renderer, $$props) {
     $$renderer2.push(`<!--]--></div>`);
   });
 }
+function Snackbar($$renderer, $$props) {
+  $$renderer.component(($$renderer2) => {
+    const cart = getCartStore();
+    if (cart.lastRemoved) {
+      $$renderer2.push("<!--[0-->");
+      $$renderer2.push(`<div class="snackbar svelte-1srpoyx"><span class="snackbar-msg svelte-1srpoyx">Item removed from cart</span> <button class="snackbar-undo svelte-1srpoyx">Undo</button> <button class="snackbar-dismiss svelte-1srpoyx"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"></path></svg></button></div>`);
+    } else {
+      $$renderer2.push("<!--[-1-->");
+    }
+    $$renderer2.push(`<!--]-->`);
+  });
+}
 function _layout($$renderer, $$props) {
   $$renderer.component(($$renderer2) => {
     let { children } = $$props;
@@ -5942,6 +5992,8 @@ function _layout($$renderer, $$props) {
     }
     $$renderer2.push(`<!--]--></div></nav> `);
     CartPanel($$renderer2, { open: cartOpen });
+    $$renderer2.push(`<!----> `);
+    Snackbar($$renderer2);
     $$renderer2.push(`<!----> <main class="container" style="padding-top:2rem;padding-bottom:4rem;">`);
     children($$renderer2);
     $$renderer2.push(`<!----></main>`);
@@ -5974,8 +6026,8 @@ var init__ = __esm({
   ".svelte-kit/output/server/nodes/0.js"() {
     index = 0;
     component = async () => component_cache ??= (await Promise.resolve().then(() => (init_layout_svelte(), layout_svelte_exports))).default;
-    imports = ["_app/immutable/nodes/0.BIMruFVy.js", "_app/immutable/chunks/Do3suO0a.js", "_app/immutable/chunks/CY3qkJC5.js", "_app/immutable/chunks/DRHDeVA5.js", "_app/immutable/chunks/xW51-iUs.js", "_app/immutable/chunks/BpB4tBLi.js", "_app/immutable/chunks/cHTHDK8Z.js", "_app/immutable/chunks/Cl9RLcda.js", "_app/immutable/chunks/DPZVh-MI.js", "_app/immutable/chunks/X4nPm4wR.js"];
-    stylesheets = ["_app/immutable/assets/0.C_HMxD-D.css"];
+    imports = ["_app/immutable/nodes/0.wXm7-s8p.js", "_app/immutable/chunks/BJYn_3Gp.js", "_app/immutable/chunks/BAkBpxy_.js", "_app/immutable/chunks/DBxor342.js", "_app/immutable/chunks/oIn1ZAnG.js", "_app/immutable/chunks/DtN89Elg.js", "_app/immutable/chunks/CLG8Vc4N.js", "_app/immutable/chunks/DNLUGN6H.js", "_app/immutable/chunks/BSTlxQ3K.js", "_app/immutable/chunks/BxsUKz-u.js", "_app/immutable/chunks/_pddM9iv.js", "_app/immutable/chunks/XR_rlDqv.js", "_app/immutable/chunks/weL_U30R.js", "_app/immutable/chunks/ni7G3-tv.js", "_app/immutable/chunks/OnvuAVbp.js"];
+    stylesheets = ["_app/immutable/assets/0.BBAkFkfb.css"];
     fonts = [];
   }
 });
@@ -6046,7 +6098,7 @@ var init__2 = __esm({
   ".svelte-kit/output/server/nodes/1.js"() {
     index2 = 1;
     component2 = async () => component_cache2 ??= (await Promise.resolve().then(() => (init_error_svelte(), error_svelte_exports))).default;
-    imports2 = ["_app/immutable/nodes/1.Bno_65ay.js", "_app/immutable/chunks/Do3suO0a.js", "_app/immutable/chunks/CY3qkJC5.js", "_app/immutable/chunks/X4nPm4wR.js"];
+    imports2 = ["_app/immutable/nodes/1.4EaHYU9l.js", "_app/immutable/chunks/BJYn_3Gp.js", "_app/immutable/chunks/BAkBpxy_.js", "_app/immutable/chunks/weL_U30R.js", "_app/immutable/chunks/XR_rlDqv.js"];
     stylesheets2 = [];
     fonts2 = [];
   }
@@ -6057,18 +6109,14 @@ var page_svelte_exports = {};
 __export(page_svelte_exports, {
   default: () => _page
 });
-function _page($$renderer, $$props) {
+function onDestroy(fn) {
+  ssr_context.r.on_destroy(fn);
+}
+function Carousel($$renderer, $$props) {
   $$renderer.component(($$renderer2) => {
-    let categories = [];
-    let selectedCategory = "";
-    let search = "";
-    $$renderer2.push(`<div class="hero svelte-1uha8ag"><h1 class="svelte-1uha8ag">FakeStore</h1> <p class="svelte-1uha8ag">Browse our curated collection of products</p></div> <div class="filter-bar"><input placeholder="Search products..."${attr("value", search)} style="max-width:280px;"/> <button${attr_class(clsx2("primary"))}>All</button> <!--[-->`);
-    const each_array = ensure_array_like(categories);
-    for (let $$index = 0, $$length = each_array.length; $$index < $$length; $$index++) {
-      let cat = each_array[$$index];
-      $$renderer2.push(`<button${attr_class(clsx2(selectedCategory === cat ? "primary" : "secondary"))}>${escape_html2(cat)}</button>`);
+    onDestroy(() => stop());
+    function stop() {
     }
-    $$renderer2.push(`<!--]--></div> `);
     {
       $$renderer2.push("<!--[0-->");
       $$renderer2.push(`<p class="empty-state">Loading...</p>`);
@@ -6076,8 +6124,14 @@ function _page($$renderer, $$props) {
     $$renderer2.push(`<!--]-->`);
   });
 }
+function _page($$renderer) {
+  $$renderer.push(`<div class="hero svelte-1uha8ag"><h1 class="svelte-1uha8ag">FakeStore</h1> <p class="svelte-1uha8ag">Browse our curated collection of products</p> <a href="/products"><button class="primary" style="margin-top:1rem;padding:0.75rem 2rem;">Shop All Products</button></a></div> `);
+  Carousel($$renderer);
+  $$renderer.push(`<!---->`);
+}
 var init_page_svelte = __esm({
   ".svelte-kit/output/server/entries/pages/_page.svelte.js"() {
+    init_clsx();
     init_root();
     init_internal();
     init_exports();
@@ -6101,8 +6155,8 @@ var init__3 = __esm({
   ".svelte-kit/output/server/nodes/2.js"() {
     index3 = 2;
     component3 = async () => component_cache3 ??= (await Promise.resolve().then(() => (init_page_svelte(), page_svelte_exports))).default;
-    imports3 = ["_app/immutable/nodes/2.DvkDhPuk.js", "_app/immutable/chunks/Do3suO0a.js", "_app/immutable/chunks/CY3qkJC5.js", "_app/immutable/chunks/DRHDeVA5.js", "_app/immutable/chunks/xW51-iUs.js", "_app/immutable/chunks/BpB4tBLi.js", "_app/immutable/chunks/cHTHDK8Z.js", "_app/immutable/chunks/Cl9RLcda.js", "_app/immutable/chunks/Cvtb5pfj.js", "_app/immutable/chunks/DPZVh-MI.js", "_app/immutable/chunks/X4nPm4wR.js"];
-    stylesheets3 = ["_app/immutable/assets/ProductCard.BmxxAwyf.css", "_app/immutable/assets/2.2rvr3WdR.css"];
+    imports3 = ["_app/immutable/nodes/2.Dn9F6C0L.js", "_app/immutable/chunks/BJYn_3Gp.js", "_app/immutable/chunks/BAkBpxy_.js", "_app/immutable/chunks/ni7G3-tv.js", "_app/immutable/chunks/DBxor342.js", "_app/immutable/chunks/oIn1ZAnG.js", "_app/immutable/chunks/DtN89Elg.js", "_app/immutable/chunks/CLG8Vc4N.js", "_app/immutable/chunks/DNLUGN6H.js", "_app/immutable/chunks/BSTlxQ3K.js", "_app/immutable/chunks/DxY-rszY.js", "_app/immutable/chunks/BxsUKz-u.js", "_app/immutable/chunks/weL_U30R.js"];
+    stylesheets3 = ["_app/immutable/assets/2.2AiwExnX.css"];
     fonts3 = [];
   }
 });
@@ -6148,7 +6202,7 @@ var init__4 = __esm({
   ".svelte-kit/output/server/nodes/3.js"() {
     index4 = 3;
     component4 = async () => component_cache4 ??= (await Promise.resolve().then(() => (init_page_svelte2(), page_svelte_exports2))).default;
-    imports4 = ["_app/immutable/nodes/3.CMo1ihMr.js", "_app/immutable/chunks/Do3suO0a.js", "_app/immutable/chunks/CY3qkJC5.js", "_app/immutable/chunks/DRHDeVA5.js", "_app/immutable/chunks/xW51-iUs.js", "_app/immutable/chunks/Cl9RLcda.js", "_app/immutable/chunks/cHTHDK8Z.js", "_app/immutable/chunks/X4nPm4wR.js"];
+    imports4 = ["_app/immutable/nodes/3.DBS5KEvv.js", "_app/immutable/chunks/BJYn_3Gp.js", "_app/immutable/chunks/BAkBpxy_.js", "_app/immutable/chunks/DBxor342.js", "_app/immutable/chunks/oIn1ZAnG.js", "_app/immutable/chunks/DNLUGN6H.js", "_app/immutable/chunks/CLG8Vc4N.js", "_app/immutable/chunks/XR_rlDqv.js", "_app/immutable/chunks/weL_U30R.js"];
     stylesheets4 = ["_app/immutable/assets/3.DqZ6mB-8.css"];
     fonts4 = [];
   }
@@ -6196,7 +6250,7 @@ var init__5 = __esm({
   ".svelte-kit/output/server/nodes/4.js"() {
     index5 = 4;
     component5 = async () => component_cache5 ??= (await Promise.resolve().then(() => (init_page_svelte3(), page_svelte_exports3))).default;
-    imports5 = ["_app/immutable/nodes/4.BT3w3MlS.js", "_app/immutable/chunks/Do3suO0a.js", "_app/immutable/chunks/CY3qkJC5.js", "_app/immutable/chunks/DRHDeVA5.js", "_app/immutable/chunks/BpB4tBLi.js", "_app/immutable/chunks/cHTHDK8Z.js", "_app/immutable/chunks/5x7lo6wT.js", "_app/immutable/chunks/DPZVh-MI.js", "_app/immutable/chunks/X4nPm4wR.js"];
+    imports5 = ["_app/immutable/nodes/4.sGMuvttF.js", "_app/immutable/chunks/BJYn_3Gp.js", "_app/immutable/chunks/BAkBpxy_.js", "_app/immutable/chunks/DBxor342.js", "_app/immutable/chunks/DtN89Elg.js", "_app/immutable/chunks/CLG8Vc4N.js", "_app/immutable/chunks/BPD1KTtw.js", "_app/immutable/chunks/BxsUKz-u.js", "_app/immutable/chunks/XR_rlDqv.js", "_app/immutable/chunks/weL_U30R.js"];
     stylesheets5 = ["_app/immutable/assets/4.CyDn8lhU.css"];
     fonts5 = [];
   }
@@ -6245,7 +6299,7 @@ var init__6 = __esm({
   ".svelte-kit/output/server/nodes/5.js"() {
     index6 = 5;
     component6 = async () => component_cache6 ??= (await Promise.resolve().then(() => (init_page_svelte4(), page_svelte_exports4))).default;
-    imports6 = ["_app/immutable/nodes/5.D8SXRDxu.js", "_app/immutable/chunks/Do3suO0a.js", "_app/immutable/chunks/CY3qkJC5.js", "_app/immutable/chunks/DRHDeVA5.js", "_app/immutable/chunks/BpB4tBLi.js", "_app/immutable/chunks/cHTHDK8Z.js", "_app/immutable/chunks/5x7lo6wT.js", "_app/immutable/chunks/DPZVh-MI.js", "_app/immutable/chunks/X4nPm4wR.js"];
+    imports6 = ["_app/immutable/nodes/5.CtNrRmaL.js", "_app/immutable/chunks/BJYn_3Gp.js", "_app/immutable/chunks/BAkBpxy_.js", "_app/immutable/chunks/DBxor342.js", "_app/immutable/chunks/DtN89Elg.js", "_app/immutable/chunks/CLG8Vc4N.js", "_app/immutable/chunks/BPD1KTtw.js", "_app/immutable/chunks/BxsUKz-u.js", "_app/immutable/chunks/XR_rlDqv.js", "_app/immutable/chunks/weL_U30R.js"];
     stylesheets6 = ["_app/immutable/assets/5.RrMblt9b.css"];
     fonts6 = [];
   }
@@ -6316,7 +6370,7 @@ var init__7 = __esm({
   ".svelte-kit/output/server/nodes/6.js"() {
     index7 = 6;
     component7 = async () => component_cache7 ??= (await Promise.resolve().then(() => (init_page_svelte5(), page_svelte_exports5))).default;
-    imports7 = ["_app/immutable/nodes/6.CcjNr45Z.js", "_app/immutable/chunks/Do3suO0a.js", "_app/immutable/chunks/CY3qkJC5.js", "_app/immutable/chunks/mcSCHp-8.js", "_app/immutable/chunks/DRHDeVA5.js", "_app/immutable/chunks/xW51-iUs.js", "_app/immutable/chunks/BpB4tBLi.js", "_app/immutable/chunks/cHTHDK8Z.js", "_app/immutable/chunks/X4nPm4wR.js"];
+    imports7 = ["_app/immutable/nodes/6.ti07lSck.js", "_app/immutable/chunks/BJYn_3Gp.js", "_app/immutable/chunks/BAkBpxy_.js", "_app/immutable/chunks/ni7G3-tv.js", "_app/immutable/chunks/DBxor342.js", "_app/immutable/chunks/oIn1ZAnG.js", "_app/immutable/chunks/_pddM9iv.js", "_app/immutable/chunks/DtN89Elg.js", "_app/immutable/chunks/CLG8Vc4N.js", "_app/immutable/chunks/OnvuAVbp.js", "_app/immutable/chunks/XR_rlDqv.js", "_app/immutable/chunks/weL_U30R.js"];
     stylesheets7 = ["_app/immutable/assets/6.DHHUaI-t.css"];
     fonts7 = [];
   }
@@ -6364,7 +6418,7 @@ var init__8 = __esm({
   ".svelte-kit/output/server/nodes/7.js"() {
     index8 = 7;
     component8 = async () => component_cache8 ??= (await Promise.resolve().then(() => (init_page_svelte6(), page_svelte_exports6))).default;
-    imports8 = ["_app/immutable/nodes/7.CxsOCIIJ.js", "_app/immutable/chunks/Do3suO0a.js", "_app/immutable/chunks/CY3qkJC5.js", "_app/immutable/chunks/DRHDeVA5.js", "_app/immutable/chunks/xW51-iUs.js", "_app/immutable/chunks/cHTHDK8Z.js", "_app/immutable/chunks/Cvtb5pfj.js", "_app/immutable/chunks/BpB4tBLi.js", "_app/immutable/chunks/Cl9RLcda.js", "_app/immutable/chunks/DPZVh-MI.js", "_app/immutable/chunks/X4nPm4wR.js"];
+    imports8 = ["_app/immutable/nodes/7.BOCFtZye.js", "_app/immutable/chunks/BJYn_3Gp.js", "_app/immutable/chunks/BAkBpxy_.js", "_app/immutable/chunks/DBxor342.js", "_app/immutable/chunks/oIn1ZAnG.js", "_app/immutable/chunks/CLG8Vc4N.js", "_app/immutable/chunks/D0jn2fjg.js", "_app/immutable/chunks/DtN89Elg.js", "_app/immutable/chunks/DNLUGN6H.js", "_app/immutable/chunks/BxsUKz-u.js", "_app/immutable/chunks/XR_rlDqv.js", "_app/immutable/chunks/weL_U30R.js"];
     stylesheets8 = ["_app/immutable/assets/ProductCard.BmxxAwyf.css"];
     fonts8 = [];
   }
@@ -6466,7 +6520,7 @@ var init__9 = __esm({
   ".svelte-kit/output/server/nodes/8.js"() {
     index9 = 8;
     component9 = async () => component_cache9 ??= (await Promise.resolve().then(() => (init_page_svelte7(), page_svelte_exports7))).default;
-    imports9 = ["_app/immutable/nodes/8.DRxDrDOf.js", "_app/immutable/chunks/Do3suO0a.js", "_app/immutable/chunks/CY3qkJC5.js", "_app/immutable/chunks/mcSCHp-8.js", "_app/immutable/chunks/DRHDeVA5.js", "_app/immutable/chunks/xW51-iUs.js", "_app/immutable/chunks/BpB4tBLi.js", "_app/immutable/chunks/cHTHDK8Z.js", "_app/immutable/chunks/DPZVh-MI.js", "_app/immutable/chunks/X4nPm4wR.js"];
+    imports9 = ["_app/immutable/nodes/8.CyhEOaMq.js", "_app/immutable/chunks/BJYn_3Gp.js", "_app/immutable/chunks/BAkBpxy_.js", "_app/immutable/chunks/ni7G3-tv.js", "_app/immutable/chunks/DBxor342.js", "_app/immutable/chunks/oIn1ZAnG.js", "_app/immutable/chunks/DtN89Elg.js", "_app/immutable/chunks/CLG8Vc4N.js", "_app/immutable/chunks/OnvuAVbp.js", "_app/immutable/chunks/BxsUKz-u.js", "_app/immutable/chunks/XR_rlDqv.js", "_app/immutable/chunks/weL_U30R.js"];
     stylesheets9 = ["_app/immutable/assets/8.gUjhRS5y.css"];
     fonts9 = [];
   }
@@ -6524,7 +6578,7 @@ var init__10 = __esm({
   ".svelte-kit/output/server/nodes/9.js"() {
     index10 = 9;
     component10 = async () => component_cache10 ??= (await Promise.resolve().then(() => (init_page_svelte8(), page_svelte_exports8))).default;
-    imports10 = ["_app/immutable/nodes/9.2eZkCEoo.js", "_app/immutable/chunks/Do3suO0a.js", "_app/immutable/chunks/CY3qkJC5.js", "_app/immutable/chunks/DRHDeVA5.js", "_app/immutable/chunks/xW51-iUs.js", "_app/immutable/chunks/BpB4tBLi.js", "_app/immutable/chunks/cHTHDK8Z.js", "_app/immutable/chunks/Cl9RLcda.js", "_app/immutable/chunks/Cvtb5pfj.js", "_app/immutable/chunks/DPZVh-MI.js", "_app/immutable/chunks/X4nPm4wR.js"];
+    imports10 = ["_app/immutable/nodes/9.NHf6pkDa.js", "_app/immutable/chunks/BJYn_3Gp.js", "_app/immutable/chunks/BAkBpxy_.js", "_app/immutable/chunks/DBxor342.js", "_app/immutable/chunks/oIn1ZAnG.js", "_app/immutable/chunks/DtN89Elg.js", "_app/immutable/chunks/CLG8Vc4N.js", "_app/immutable/chunks/DNLUGN6H.js", "_app/immutable/chunks/D0jn2fjg.js", "_app/immutable/chunks/BxsUKz-u.js", "_app/immutable/chunks/XR_rlDqv.js", "_app/immutable/chunks/weL_U30R.js"];
     stylesheets10 = ["_app/immutable/assets/ProductCard.BmxxAwyf.css", "_app/immutable/assets/9.B4Zy1gOR.css"];
     fonts10 = [];
   }
@@ -6571,7 +6625,7 @@ var init__11 = __esm({
   ".svelte-kit/output/server/nodes/10.js"() {
     index11 = 10;
     component11 = async () => component_cache11 ??= (await Promise.resolve().then(() => (init_page_svelte9(), page_svelte_exports9))).default;
-    imports11 = ["_app/immutable/nodes/10.DFtirJmI.js", "_app/immutable/chunks/Do3suO0a.js", "_app/immutable/chunks/CY3qkJC5.js", "_app/immutable/chunks/DRHDeVA5.js", "_app/immutable/chunks/BpB4tBLi.js", "_app/immutable/chunks/cHTHDK8Z.js", "_app/immutable/chunks/Cl9RLcda.js", "_app/immutable/chunks/DPZVh-MI.js", "_app/immutable/chunks/X4nPm4wR.js"];
+    imports11 = ["_app/immutable/nodes/10.j4rUEvmt.js", "_app/immutable/chunks/BJYn_3Gp.js", "_app/immutable/chunks/BAkBpxy_.js", "_app/immutable/chunks/DBxor342.js", "_app/immutable/chunks/DtN89Elg.js", "_app/immutable/chunks/CLG8Vc4N.js", "_app/immutable/chunks/DNLUGN6H.js", "_app/immutable/chunks/BxsUKz-u.js", "_app/immutable/chunks/XR_rlDqv.js", "_app/immutable/chunks/weL_U30R.js"];
     stylesheets11 = ["_app/immutable/assets/10.DK2ltYAs.css"];
     fonts11 = [];
   }
@@ -7579,7 +7633,7 @@ var options = {
 		<div class="error">
 			<span class="status">` + status + '</span>\n			<div class="message">\n				<h1>' + message + "</h1>\n			</div>\n		</div>\n	</body>\n</html>\n"
   },
-  version_hash: "1nqyql6"
+  version_hash: "14192t1"
 };
 async function get_hooks() {
   let handle;
@@ -11548,7 +11602,7 @@ var manifest = (() => {
     assets: /* @__PURE__ */ new Set([]),
     mimeTypes: {},
     _: {
-      client: { start: "_app/immutable/entry/start.B8q5wkFY.js", app: "_app/immutable/entry/app.jvAyQKJm.js", imports: ["_app/immutable/entry/start.B8q5wkFY.js", "_app/immutable/chunks/X4nPm4wR.js", "_app/immutable/chunks/CY3qkJC5.js", "_app/immutable/entry/app.jvAyQKJm.js", "_app/immutable/chunks/CY3qkJC5.js", "_app/immutable/chunks/Do3suO0a.js", "_app/immutable/chunks/DRHDeVA5.js"], stylesheets: [], fonts: [], uses_env_dynamic_public: false },
+      client: { start: "_app/immutable/entry/start.BvrD7tro.js", app: "_app/immutable/entry/app.Dj7-BHou.js", imports: ["_app/immutable/entry/start.BvrD7tro.js", "_app/immutable/chunks/XR_rlDqv.js", "_app/immutable/chunks/BAkBpxy_.js", "_app/immutable/chunks/weL_U30R.js", "_app/immutable/entry/app.Dj7-BHou.js", "_app/immutable/chunks/BAkBpxy_.js", "_app/immutable/chunks/BJYn_3Gp.js", "_app/immutable/chunks/DBxor342.js", "_app/immutable/chunks/DxY-rszY.js"], stylesheets: [], fonts: [], uses_env_dynamic_public: false },
       nodes: [
         __memo(() => Promise.resolve().then(() => (init__(), __exports))),
         __memo(() => Promise.resolve().then(() => (init__2(), __exports2))),

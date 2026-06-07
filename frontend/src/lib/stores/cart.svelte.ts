@@ -4,6 +4,8 @@ import { getAuthStore } from './auth.svelte';
 
 let items = $state<CartItem[]>([]);
 let loading = $state(false);
+let lastRemoved: { product_id: number; quantity: number; id: number } | null = $state(null);
+let undoTimeout: ReturnType<typeof setTimeout> | null = null;
 
 async function fetchCart() {
   const auth = getAuthStore();
@@ -37,8 +39,26 @@ async function update(id: number, quantity: number) {
 }
 
 async function remove(id: number) {
+  const item = items.find(i => i.id === id);
+  if (item) {
+    lastRemoved = { product_id: item.product_id, quantity: item.quantity, id: item.id };
+    if (undoTimeout) clearTimeout(undoTimeout);
+    undoTimeout = setTimeout(() => { lastRemoved = null; }, 4000);
+  }
   await api.cart.remove(id);
   await fetchCart();
+}
+
+async function undoRemove() {
+  if (!lastRemoved) return;
+  await add(lastRemoved.product_id, lastRemoved.quantity);
+  lastRemoved = null;
+  if (undoTimeout) { clearTimeout(undoTimeout); undoTimeout = null; }
+}
+
+function dismissUndo() {
+  lastRemoved = null;
+  if (undoTimeout) { clearTimeout(undoTimeout); undoTimeout = null; }
 }
 
 function total() {
@@ -51,9 +71,12 @@ export function getCartStore() {
     get loading() { return loading; },
     get count() { return items.reduce((s, i) => s + i.quantity, 0); },
     get total() { return total(); },
+    get lastRemoved() { return lastRemoved; },
     fetchCart,
     add,
     update,
     remove,
+    undoRemove,
+    dismissUndo,
   };
 }

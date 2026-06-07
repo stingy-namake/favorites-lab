@@ -6,6 +6,10 @@
 
   const cart = getCartStore();
 
+  function slideRight(node: Element, { duration = 200 }) {
+    return { duration, css: (t: number) => `transform:translateX(${(1-t)*100}%);opacity:${t};overflow:hidden;` };
+  }
+
   function qtyMinus(item: { id: number; quantity: number }) {
     if (item.quantity <= 1) cart.remove(item.id);
     else cart.update(item.id, item.quantity - 1);
@@ -32,7 +36,7 @@
   </div>
   <div class="panel-body">
     {#each cart.items as item (item.id)}
-      <div class="panel-item">
+      <div class="panel-item" transition:slideRight>
         {#if item.product}
           <div class="panel-item-img">
             <img src={item.product.image} alt={item.product.title} />

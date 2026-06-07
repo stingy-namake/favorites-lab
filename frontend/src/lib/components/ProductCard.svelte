@@ -61,7 +61,7 @@
     </div>
     {#if auth.isAuthenticated}
       <div class="card-actions">
-        <button class="primary btn-animate" onclick={cart.items.some(i => i.product_id === product.id) ? goToCart : addToCart}>
+        <button class="primary btn-animate" class:in-cart={cart.items.some(i => i.product_id === product.id)} onclick={cart.items.some(i => i.product_id === product.id) ? goToCart : addToCart}>
           {cart.items.some(i => i.product_id === product.id) ? 'GO TO CART' : 'ADD TO CART'}
         </button>
         <button class="fav-btn btn-animate" class:faved={favs.isFavorited(product.id)} onclick={toggleFav}>

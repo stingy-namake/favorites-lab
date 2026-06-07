@@ -5,6 +5,7 @@
   import { getCartStore } from '$lib/stores/cart.svelte';
   import { getFavoritesStore } from '$lib/stores/favorites.svelte';
   import CartPanel from '$lib/components/CartPanel.svelte';
+  import Snackbar from '$lib/components/Snackbar.svelte';
 
   let { children } = $props();
 
@@ -75,7 +76,7 @@
 </script>
 
 <nav class="nav">
-  <a href="/" class="nav-brand">FAKESTORE</a>
+  <a href="/" class="nav-brand">kishin echoes</a>
   <div class="nav-links">
     <a href="/products">PRODUCTS</a>
     {#if auth.isAuthenticated}
@@ -119,12 +120,21 @@
 </nav>
 
 <CartPanel open={cartOpen} onclose={() => cartOpen = false} />
+<Snackbar />
 
 <main class="container" style="padding-top:2rem;padding-bottom:4rem;">
   {@render children()}
 </main>
 
+<footer class="footer">
+  <div class="container">
+    <span>kishin echoes &middot; powered by FakeStoreAPI</span>
+  </div>
+</footer>
+
 <style>
   .nav-link-btn { background:transparent; color:var(--text-nav); border:none; font:inherit; font-size:0.825rem; font-weight:500; letter-spacing:0.02em; padding:0; cursor:pointer; }
   .nav-link-btn:hover { color:var(--nav-hover, var(--primary)); }
+  .footer { background:var(--nav-bg); padding:1.5rem 0; margin-top:auto; text-align:center; }
+  .footer span { color:var(--text-muted); font-size:0.8rem; font-weight:400; }
 </style>

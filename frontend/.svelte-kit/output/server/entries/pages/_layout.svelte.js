@@ -46,6 +46,18 @@ function CartPanel($$renderer, $$props) {
     $$renderer2.push(`<!--]--></div>`);
   });
 }
+function Snackbar($$renderer, $$props) {
+  $$renderer.component(($$renderer2) => {
+    const cart = getCartStore();
+    if (cart.lastRemoved) {
+      $$renderer2.push("<!--[0-->");
+      $$renderer2.push(`<div class="snackbar svelte-1srpoyx"><span class="snackbar-msg svelte-1srpoyx">Item removed from cart</span> <button class="snackbar-undo svelte-1srpoyx">Undo</button> <button class="snackbar-dismiss svelte-1srpoyx"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"></path></svg></button></div>`);
+    } else {
+      $$renderer2.push("<!--[-1-->");
+    }
+    $$renderer2.push(`<!--]-->`);
+  });
+}
 function _layout($$renderer, $$props) {
   $$renderer.component(($$renderer2) => {
     let { children } = $$props;
@@ -70,6 +82,8 @@ function _layout($$renderer, $$props) {
     }
     $$renderer2.push(`<!--]--></div></nav> `);
     CartPanel($$renderer2, { open: cartOpen });
+    $$renderer2.push(`<!----> `);
+    Snackbar($$renderer2);
     $$renderer2.push(`<!----> <main class="container" style="padding-top:2rem;padding-bottom:4rem;">`);
     children($$renderer2);
     $$renderer2.push(`<!----></main>`);
