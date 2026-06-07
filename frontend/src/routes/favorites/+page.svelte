@@ -3,11 +3,13 @@
   import { getAuthStore } from '$lib/stores/auth.svelte';
   import { getFavoritesStore } from '$lib/stores/favorites.svelte';
   import { getCartStore } from '$lib/stores/cart.svelte';
+  import { getProductOverlay } from '$lib/stores/productOverlay.svelte';
   import { goto } from '$app/navigation';
 
   const auth = getAuthStore();
   const favs = getFavoritesStore();
   const cart = getCartStore();
+  const overlay = getProductOverlay();
 
   onMount(() => { if (!auth.isAuthenticated) goto('/auth/login'); });
 </script>
@@ -28,7 +30,7 @@
             <img src={fav.product.image} alt={fav.product.title} />
           </div>
           <div class="fav-item-body">
-            <a href={`/products/${fav.product_id}`} class="fav-item-title">{fav.product.title}</a>
+            <button class="fav-item-title" onclick={() => overlay.open(fav.product!)}>{fav.product.title}</button>
             <span class="fav-item-price">${fav.product.price.toFixed(2)}</span>
             <div class="fav-item-actions">
               <button class="primary" style="flex:1;font-size:0.8rem;font-weight:700;" onclick={() => cart.add(fav.product_id)}>ADD TO CART</button>
@@ -47,7 +49,7 @@
   .fav-item-img { width:80px; height:80px; flex-shrink:0; display:flex; align-items:center; justify-content:center; background:var(--bg-alt); border-radius:var(--radius); }
   .fav-item-img img { max-height:100%; max-width:100%; object-fit:contain; }
   .fav-item-body { flex:1; display:flex; flex-direction:column; gap:0.25rem; }
-  .fav-item-title { font-weight:600; font-size:0.85rem; color:var(--text); text-decoration:none; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+  .fav-item-title { font-weight:600; font-size:0.85rem; color:var(--text); text-decoration:none; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; cursor:pointer; background:none; border:none; padding:0; text-align:left; }
   .fav-item-title:hover { color:var(--primary); }
   .fav-item-price { font-weight:700; font-size:1rem; }
   .fav-item-actions { display:flex; gap:0.5rem; margin-top:auto; }

@@ -11,6 +11,7 @@ build/
 .next/
 out/
 
+.svelte-kit/
 wrangler.toml
 
 *.pyc

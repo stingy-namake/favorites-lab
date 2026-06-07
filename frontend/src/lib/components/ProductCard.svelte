@@ -3,6 +3,7 @@
   import { getAuthStore } from '$lib/stores/auth.svelte';
   import { getCartStore } from '$lib/stores/cart.svelte';
   import { getFavoritesStore } from '$lib/stores/favorites.svelte';
+  import { getProductOverlay } from '$lib/stores/productOverlay.svelte';
   import { goto } from '$app/navigation';
 
   let { product }: { product: Product } = $props();
@@ -10,6 +11,7 @@
   const auth = getAuthStore();
   const cart = getCartStore();
   const favs = getFavoritesStore();
+  const overlay = getProductOverlay();
 
   let imgError = $state(false);
   let imgLoaded = $state(false);
@@ -31,7 +33,7 @@
 </script>
 
 <div class="card">
-  <a href={`/products/${product.id}`} class="card-img">
+  <button class="card-img" onclick={() => overlay.open(product)}>
     {#if imgError}
       <div class="card-img-placeholder">No Image</div>
     {:else}
@@ -46,16 +48,16 @@
         />
       </div>
     {/if}
-  </a>
+  </button>
   <div class="card-body">
     <div class="card-top">
       <span class="card-category">{product.category}</span>
-      <a href={`/products/${product.id}`} class="card-title">{product.title}</a>
+      <button class="card-title" onclick={() => overlay.open(product)}>{product.title}</button>
       <div class="card-footer">
         <span class="card-price">${product.price.toFixed(2)}</span>
         <span class="card-rating">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-          {product.rating.rate}
+          {product.rating.rate.toFixed(1)}
         </span>
       </div>
     </div>
@@ -80,18 +82,18 @@
   .card { background:var(--bg-card); border-radius:var(--radius-lg); overflow:hidden; transition:box-shadow 0.2s, transform 0.2s; display:flex; flex-direction:column; }
   .card:hover { box-shadow:var(--shadow-lg); transform:translateY(-2px); }
 
-  .card-img { display:block; }
-  .card-img-wrap { position:relative; padding-top:120%; background:var(--bg-alt); overflow:hidden; }
+  .card-img { display:block; width:100%; border:none; border-radius:0; padding:0; background:none; cursor:pointer; }
+  .card-img-wrap { position:relative; padding-top:100%; background:var(--bg-alt); overflow:hidden; }
   .card-img-wrap img { position:absolute; inset:0; width:100%; height:100%; object-fit:contain; padding:1.5rem; opacity:0; transition:opacity 0.3s; }
   .card-img-wrap img.loaded { opacity:1; }
-  .card-img-placeholder { height:200px; display:flex; align-items:center; justify-content:center; color:var(--text-muted); font-size:0.85rem; background:var(--bg-alt); }
+  .card-img-placeholder { height:180px; display:flex; align-items:center; justify-content:center; color:var(--text-muted); font-size:0.85rem; background:var(--bg-alt); }
 
   .card-body { padding:0.75rem; display:flex; flex-direction:column; flex:1; justify-content:space-between; }
   .card-top { display:flex; flex-direction:column; gap:0.35rem; }
 
   .card-category { font-size:0.7rem; font-weight:600; color:var(--primary); text-transform:uppercase; letter-spacing:0.05em; }
 
-  .card-title { font-size:0.85rem; font-weight:500; color:var(--text); line-height:1.4; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; text-decoration:none; }
+  .card-title { font-size:0.85rem; font-weight:500; color:var(--text); line-height:1.4; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; text-decoration:none; cursor:pointer; background:none; border:none; padding:0; text-align:left; }
   .card-title:hover { color:var(--primary); }
 
   .card-footer { display:flex; align-items:center; justify-content:space-between; margin-top:0.15rem; }

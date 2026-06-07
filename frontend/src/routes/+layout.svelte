@@ -6,6 +6,7 @@
   import { getFavoritesStore } from '$lib/stores/favorites.svelte';
   import CartPanel from '$lib/components/CartPanel.svelte';
   import Snackbar from '$lib/components/Snackbar.svelte';
+  import ProductOverlay from '$lib/components/ProductOverlay.svelte';
 
   let { children } = $props();
 
@@ -121,6 +122,7 @@
 
 <CartPanel open={cartOpen} onclose={() => cartOpen = false} />
 <Snackbar />
+<ProductOverlay />
 
 <main class="container" style="padding-top:2rem;padding-bottom:4rem;">
   {@render children()}
