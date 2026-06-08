@@ -129,13 +129,13 @@
   .card-img img { max-height:100%; max-width:100%; object-fit:contain; transition:transform 0.4s; }
   .card:hover .card-img img { transform:scale(1.06) rotate(-2deg); }
 
-  .card-body { padding:0.65rem; display:flex; flex-direction:column; gap:0.2rem; flex:1; }
+  .card-body { padding:0.65rem; display:flex; flex-direction:column; flex:1; }
   .card-title { font-size:0.78rem; font-weight:600; color:var(--text); line-height:1.3; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; text-decoration:none; text-align:left; background:none; border:none; padding:0; cursor:pointer; }
   .card-title:hover { color:var(--primary); }
   .card-rating { display:flex; align-items:center; gap:0.2rem; font-size:0.7rem; color:var(--text-muted); font-weight:500; }
   .card-price { font-size:0.9rem; font-weight:700; color:var(--text); }
 
-  .card-actions { display:flex; gap:0.375rem; margin-top:0.3rem; }
+  .card-actions { display:flex; gap:0.375rem; margin-top:auto; padding-top:0.3rem; }
   .card-btn { flex:1; font-size:0.6rem; font-weight:700; padding:0.35rem 0.5rem; letter-spacing:0.02em; white-space:nowrap; display:flex; align-items:center; justify-content:center; }
 
   .card-fav { width:30px; height:30px; padding:0; display:flex; align-items:center; justify-content:center; background:var(--bg-alt); border:1px solid var(--border); border-radius:var(--radius); flex-shrink:0; cursor:pointer; transition:0.15s; }
