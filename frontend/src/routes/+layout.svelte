@@ -1,7 +1,6 @@
 <script lang="ts">
   import './../app.css';
   import { onMount } from 'svelte';
-  import { goto } from '$app/navigation';
   import { getAuthStore } from '$lib/stores/auth.svelte';
   import { getCartStore } from '$lib/stores/cart.svelte';
   import { getFavoritesStore } from '$lib/stores/favorites.svelte';
@@ -16,16 +15,6 @@
   const favs = getFavoritesStore();
 
   let theme = $state('dark');
-  let searchQuery = $state('');
-
-  function handleSearch() {
-    const q = searchQuery.trim();
-    goto(q ? `/products?q=${encodeURIComponent(q)}` : '/products');
-  }
-
-  function handleSearchKeydown(e: KeyboardEvent) {
-    if (e.key === 'Enter') handleSearch();
-  }
   let accentOpen = $state(false);
   let cartOpen = $state(false);
   let userMenuOpen = $state(false);
@@ -97,13 +86,6 @@
     <a href="/products">PRODUCTS</a>
     {#if auth.isAdmin}<a href="/admin">ADMIN</a>{/if}
   </div>
-  <div class="nav-search">
-    <svg class="nav-search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-    <input class="nav-search-input" type="text" placeholder="Search products..." bind:value={searchQuery} onkeydown={handleSearchKeydown} />
-    {#if searchQuery}
-      <button class="nav-search-clear" onclick={() => searchQuery = ''} aria-label="Clear">✕</button>
-    {/if}
-  </div>
   <div class="nav-right">
     <div class="accent-wrap">
       <button class="accent-trigger" onclick={() => accentOpen = !accentOpen} title="Accent color"></button>
@@ -140,22 +122,22 @@
         {#if favs.count > 0}<span class="nav-icon-badge">{favs.count}</span>{/if}
       </span>
     </a>
-    {#if auth.isAuthenticated}
-      <div class="user-wrap">
-        <button class="nav-icon-link" onclick={() => userMenuOpen = !userMenuOpen} aria-label="User menu">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-        </button>
-        {#if userMenuOpen}
-          <div class="user-dropdown">
+    <div class="user-wrap">
+      <button class="nav-icon-link" onclick={() => userMenuOpen = !userMenuOpen} aria-label="User menu">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      </button>
+      {#if userMenuOpen}
+        <div class="user-dropdown">
+          {#if auth.isAuthenticated}
             <span class="user-dropdown-name">{auth.user?.name}</span>
             <button class="user-dropdown-btn" onclick={handleLogout}>LOGOUT</button>
-          </div>
-        {/if}
-      </div>
-    {:else}
-      <a href="/auth/login"><button class="nav-btn">LOGIN</button></a>
-      <a href="/auth/signup"><button class="nav-btn nav-btn-primary">SIGN UP</button></a>
-    {/if}
+          {:else}
+            <a href="/auth/login" class="user-dropdown-link">LOGIN</a>
+            <a href="/auth/signup" class="user-dropdown-link">SIGN UP</a>
+          {/if}
+        </div>
+      {/if}
+    </div>
   </div>
 </nav>
 
@@ -185,24 +167,13 @@
   .nav-icon-wrap { position:relative; display:flex; }
   .nav-icon-badge { position:absolute; top:-5px; right:-12px; background:var(--primary); color:var(--primary-text, white); font-size:0.5rem; font-weight:700; border-radius:8px; min-width:14px; height:14px; padding:0 3px; display:flex; align-items:center; justify-content:center; line-height:1; }
 
-  .nav-search { position:relative; flex:1 1 200px; max-width:320px; margin:0 1rem; }
-  .nav-search-input { width:100%; padding:0.375rem 1.75rem 0.375rem 1.75rem; font-size:0.8rem; border-radius:6px; border:1px solid rgba(255,255,255,0.2); background:rgba(255,255,255,0.1); color:var(--text-nav); outline:none; transition:border-color 0.15s, background 0.15s; }
-  .nav-search-input::placeholder { color:rgba(255,255,255,0.4); }
-  .nav-search-input:focus { border-color:var(--primary); background:rgba(255,255,255,0.15); }
-  .nav-search-icon { position:absolute; left:0.5rem; top:50%; transform:translateY(-50%); width:14px; height:14px; color:rgba(255,255,255,0.4); pointer-events:none; }
-  .nav-search-clear { position:absolute; right:0.25rem; top:50%; transform:translateY(-50%); width:20px; height:20px; padding:0; border:none; background:rgba(255,255,255,0.15); color:var(--text-nav); font-size:0.7rem; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:background 0.15s; }
-  .nav-search-clear:hover { background:rgba(255,255,255,0.25); }
-
-  @media (max-width:640px) {
-    .nav-links { display:none; }
-    .nav-search { max-width:none; }
-  }
-
   .user-wrap { position:relative; display:flex; }
   .user-dropdown { position:absolute; top:100%; right:0; margin-top:6px; background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-lg); box-shadow:var(--shadow-lg); min-width:140px; z-index:200; padding:0.375rem; animation:dropIn 0.12s ease-out; }
   .user-dropdown-name { display:block; padding:0.375rem 0.5rem; font-size:0.8rem; color:var(--text); font-weight:500; white-space:nowrap; }
   .user-dropdown-btn { width:100%; font-size:0.75rem; font-weight:600; padding:0.375rem 0.5rem; text-align:left; background:none; border:none; border-radius:var(--radius); cursor:pointer; color:var(--text-muted); }
   .user-dropdown-btn:hover { background:var(--bg-alt); color:var(--danger); }
+  .user-dropdown-link { display:block; font-size:0.75rem; font-weight:600; padding:0.375rem 0.5rem; border-radius:var(--radius); color:var(--text-muted); text-decoration:none; }
+  .user-dropdown-link:hover { background:var(--bg-alt); color:var(--text); }
 
   main { flex:1; }
   .footer { background:var(--nav-bg); padding:1.5rem 0; text-align:center; }
