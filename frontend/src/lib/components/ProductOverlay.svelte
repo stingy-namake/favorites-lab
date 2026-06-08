@@ -12,7 +12,6 @@
 
   let p = $derived(overlay.selectedProduct);
 
-  function close() { overlay.close(); }
   function addToCart(id: number) { if (auth.isAuthenticated) cart.add(id); }
   function toggleFav(id: number) {
     if (!auth.isAuthenticated) return;
@@ -22,13 +21,8 @@
 </script>
 
 {#if p}
-  <!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
-  <div class="overlay" transition:fade={{ duration: 150 }} onclick={close}>
-    <!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
-    <div class="overlay-content" transition:scale={{ start: 0.95, duration: 150 }} onclick={(e) => e.stopPropagation()}>
-      <button class="overlay-close" onclick={close} aria-label="Close">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
-      </button>
+  <div class="overlay" role="dialog" transition:fade={{ duration: 150 }} onclick={() => overlay.close()}>
+    <div class="overlay-content" role="document" transition:scale={{ start: 0.95, duration: 150 }} onclick={(e) => e.stopPropagation()}>
       <div class="overlay-layout">
         <div class="overlay-img">
           <img src={p.image} alt={p.title} />
@@ -64,8 +58,6 @@
 <style>
   .overlay { position:fixed; inset:0; z-index:1000; background:rgba(0,0,0,0.6); display:flex; align-items:center; justify-content:center; padding:1rem; }
   .overlay-content { background:var(--bg-card); border-radius:var(--radius-lg); max-width:800px; width:100%; max-height:90vh; overflow-y:auto; position:relative; padding:2rem; }
-  .overlay-close { position:absolute; top:0.75rem; right:0.75rem; width:32px; height:32px; padding:0; display:flex; align-items:center; justify-content:center; background:var(--bg-alt); border:1px solid var(--border); border-radius:50%; color:var(--text); cursor:pointer; z-index:2; }
-  .overlay-close:hover { background:var(--border); }
   .overlay-layout { display:flex; gap:2rem; }
   .overlay-img { width:35%; flex-shrink:0; display:flex; align-items:center; justify-content:center; padding:1rem; background:var(--bg-alt); border-radius:var(--radius); }
   .overlay-img img { max-height:220px; max-width:100%; object-fit:contain; }
