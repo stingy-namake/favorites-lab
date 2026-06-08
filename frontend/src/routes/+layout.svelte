@@ -83,7 +83,12 @@
   <div class="nav-links">
     <a href="/products">PRODUCTS</a>
     {#if auth.isAuthenticated}
-      <button class="nav-link-btn" onclick={() => cartOpen = !cartOpen}>CART{#if cart.count > 0}<span class="nav-badge">{cart.count}</span>{/if}</button>
+      <button class="nav-icon-link" onclick={() => cartOpen = !cartOpen}>
+        <span class="nav-icon-wrap">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4zM3 6h18M16 10a4 4 0 0 1-8 0"/></svg>
+          {#if cart.count > 0}<span class="nav-icon-badge">{cart.count}</span>{/if}
+        </span>
+      </button>
       <a href="/favorites" class="nav-icon-link">
         <span class="nav-icon-wrap">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
@@ -148,12 +153,11 @@
 
 <style>
   .nav-logo { height:24px; width:auto; display:block; }
-  .nav-icon-link { display:flex; align-items:center; color:var(--text-nav); text-decoration:none; }
+  .nav-icon-link { display:flex; align-items:center; color:var(--text-nav); text-decoration:none; background:none; border:none; font:inherit; cursor:pointer; padding:0; }
   .nav-icon-link:hover { color:var(--nav-hover, var(--primary)); }
   .nav-icon-wrap { position:relative; display:flex; }
   .nav-icon-badge { position:absolute; top:-5px; right:-12px; background:var(--primary); color:var(--primary-text, white); font-size:0.5rem; font-weight:700; border-radius:8px; min-width:14px; height:14px; padding:0 3px; display:flex; align-items:center; justify-content:center; line-height:1; }
-  .nav-link-btn { background:transparent; color:var(--text-nav); border:none; font:inherit; font-size:0.825rem; font-weight:500; letter-spacing:0.02em; padding:0; cursor:pointer; }
-  .nav-link-btn:hover { color:var(--nav-hover, var(--primary)); }
+
   main { flex:1; }
   .footer { background:var(--nav-bg); padding:1.5rem 0; text-align:center; }
   .footer .container { display:flex; align-items:center; justify-content:center; gap:0.5rem; }
