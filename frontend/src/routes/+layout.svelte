@@ -140,6 +140,7 @@
   .nav-logo { height:24px; width:auto; display:block; }
   .nav-link-btn { background:transparent; color:var(--text-nav); border:none; font:inherit; font-size:0.825rem; font-weight:500; letter-spacing:0.02em; padding:0; cursor:pointer; }
   .nav-link-btn:hover { color:var(--nav-hover, var(--primary)); }
-  .footer { background:var(--nav-bg); padding:1.5rem 0; margin-top:auto; text-align:center; }
+  main { flex:1; }
+  .footer { background:var(--nav-bg); padding:1.5rem 0; text-align:center; }
   .footer span { color:var(--text-muted); font-size:0.8rem; font-weight:400; }
 </style>
