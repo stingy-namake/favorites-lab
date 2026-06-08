@@ -15,7 +15,6 @@
   const favs = getFavoritesStore();
 
   let theme = $state('dark');
-  let accentOpen = $state(false);
   let cartOpen = $state(false);
   let userMenuOpen = $state(false);
 
@@ -50,7 +49,6 @@
       document.documentElement.style.setProperty('--nav-hover', a.primary);
       document.documentElement.style.setProperty('--primary-text', '#ffffff');
     }
-    accentOpen = false;
   }
 
   onMount(() => {
@@ -62,7 +60,6 @@
       if (auth.isAuthenticated) { cart.fetchCart(); favs.fetchFavorites(); }
     });
     document.addEventListener('click', (e) => {
-      if (accentOpen && !(e.target as HTMLElement)?.closest('.accent-wrap')) accentOpen = false;
       if (userMenuOpen && !(e.target as HTMLElement)?.closest('.user-wrap')) userMenuOpen = false;
     });
   });
@@ -87,29 +84,6 @@
     {#if auth.isAdmin}<a href="/admin">ADMIN</a>{/if}
   </div>
   <div class="nav-right">
-    <div class="accent-wrap">
-      <button class="accent-trigger" onclick={() => accentOpen = !accentOpen} title="Accent color"></button>
-      {#if accentOpen}
-        <div class="accent-dropdown">
-          {#each ACCENTS as a}
-            <button
-              class="accent-swatch"
-              class:active={activeAccent === a.id}
-              style="background:{a.id === 'mono' ? 'var(--text)' : a.primary}"
-              title={a.label}
-              onclick={() => applyAccent(a.id)}
-            ></button>
-          {/each}
-        </div>
-      {/if}
-    </div>
-    <button class="nav-theme" onclick={toggleTheme}>
-      {#if theme === 'dark'}
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
-      {:else}
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-      {/if}
-    </button>
     <button class="nav-icon-link" onclick={() => cartOpen = !cartOpen} aria-label="Cart">
       <span class="nav-icon-wrap">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4zM3 6h18M16 10a4 4 0 0 1-8 0"/></svg>
@@ -130,6 +104,24 @@
         <div class="user-dropdown">
           {#if auth.isAuthenticated}
             <span class="user-dropdown-name">{auth.user?.name}</span>
+            <div class="dropdown-divider"></div>
+          {/if}
+          <div class="dropdown-row">
+            <span>Dark mode</span>
+            <label class="toggle-switch">
+              <input type="checkbox" checked={theme === 'dark'} onchange={toggleTheme} />
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div class="dropdown-divider"></div>
+          <div class="dropdown-row"><span>Accent</span></div>
+          <div class="dropdown-swatches">
+            {#each ACCENTS as a}
+              <button class="accent-swatch" class:active={activeAccent === a.id} style="background:{a.id === 'mono' ? 'var(--text)' : a.primary}" title={a.label} onclick={() => applyAccent(a.id)}></button>
+            {/each}
+          </div>
+          <div class="dropdown-divider"></div>
+          {#if auth.isAuthenticated}
             <button class="user-dropdown-btn" onclick={handleLogout}>LOGOUT</button>
           {:else}
             <a href="/auth/login" class="user-dropdown-link">LOGIN</a>
@@ -168,12 +160,23 @@
   .nav-icon-badge { position:absolute; top:-5px; right:-12px; background:var(--primary); color:var(--primary-text, white); font-size:0.5rem; font-weight:700; border-radius:8px; min-width:14px; height:14px; padding:0 3px; display:flex; align-items:center; justify-content:center; line-height:1; }
 
   .user-wrap { position:relative; display:flex; }
-  .user-dropdown { position:absolute; top:100%; right:0; margin-top:6px; background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-lg); box-shadow:var(--shadow-lg); min-width:140px; z-index:200; padding:0.375rem; animation:dropIn 0.12s ease-out; }
+  .user-dropdown { position:absolute; top:100%; right:0; margin-top:6px; background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-lg); box-shadow:var(--shadow-lg); min-width:160px; z-index:200; padding:0.375rem; animation:dropIn 0.12s ease-out; }
   .user-dropdown-name { display:block; padding:0.375rem 0.5rem; font-size:0.8rem; color:var(--text); font-weight:500; white-space:nowrap; }
   .user-dropdown-btn { width:100%; font-size:0.75rem; font-weight:600; padding:0.375rem 0.5rem; text-align:left; background:none; border:none; border-radius:var(--radius); cursor:pointer; color:var(--text-muted); }
   .user-dropdown-btn:hover { background:var(--bg-alt); color:var(--danger); }
   .user-dropdown-link { display:block; font-size:0.75rem; font-weight:600; padding:0.375rem 0.5rem; border-radius:var(--radius); color:var(--text-muted); text-decoration:none; }
   .user-dropdown-link:hover { background:var(--bg-alt); color:var(--text); }
+
+  .dropdown-divider { height:1px; background:var(--border); margin:0.25rem 0; }
+  .dropdown-row { display:flex; align-items:center; justify-content:space-between; padding:0.25rem 0.5rem; font-size:0.75rem; color:var(--text-muted); }
+  .dropdown-swatches { display:grid; grid-template-columns:repeat(4,1fr); gap:0.25rem; padding:0.25rem 0.5rem; }
+
+  .toggle-switch { position:relative; display:inline-block; width:36px; height:20px; flex-shrink:0; }
+  .toggle-switch input { opacity:0; width:0; height:0; position:absolute; }
+  .toggle-slider { position:absolute; inset:0; background:var(--border); border-radius:10px; cursor:pointer; transition:background 0.15s; }
+  .toggle-slider::before { content:''; position:absolute; left:2px; top:2px; width:16px; height:16px; border-radius:50%; background:white; transition:transform 0.15s; }
+  .toggle-switch input:checked + .toggle-slider { background:var(--primary); }
+  .toggle-switch input:checked + .toggle-slider::before { transform:translateX(16px); }
 
   main { flex:1; }
   .footer { background:var(--nav-bg); padding:1.5rem 0; text-align:center; }
