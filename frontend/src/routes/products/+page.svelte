@@ -1,12 +1,13 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { page } from '$app/stores';
   import { api } from '$lib/api';
   import ProductCard from '$lib/components/ProductCard.svelte';
   import type { Product } from '$lib/types';
 
   let products = $state<Product[]>([]);
   let categories = $state<string[]>([]);
-  let page = $state(1);
+  let pageNum = $state(1);
   let totalPages = $state(1);
   let total = $state(0);
   let selectedCategory = $state('');
@@ -16,12 +17,14 @@
 
   onMount(async () => {
     try { categories = await api.products.categories(); } catch {}
+    const q = $page.url.searchParams.get('q');
+    if (q) search = q;
     await loadPage(1);
   });
 
   async function loadPage(p: number) {
     loading = true;
-    page = p;
+    pageNum = p;
     try {
       const res = await api.products.list({ page: p, limit: LIMIT, category: selectedCategory || undefined, q: search || undefined });
       products = res.items;
@@ -61,9 +64,9 @@
 {/if}
 
 <div class="pagination">
-  <button class="secondary" disabled={page <= 1} onclick={() => loadPage(page - 1)}>← Previous</button>
-  <span style="color:var(--text-muted);font-size:0.875rem;">Page {page} of {totalPages}</span>
-  <button class="secondary" disabled={page >= totalPages} onclick={() => loadPage(page + 1)}>Next →</button>
+  <button class="secondary" disabled={pageNum <= 1} onclick={() => loadPage(pageNum - 1)}>← Previous</button>
+  <span style="color:var(--text-muted);font-size:0.875rem;">Page {pageNum} of {totalPages}</span>
+  <button class="secondary" disabled={pageNum >= totalPages} onclick={() => loadPage(pageNum + 1)}>Next →</button>
 </div>
 
 <style>
