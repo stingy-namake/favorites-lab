@@ -125,7 +125,7 @@
     {#if auth.isAuthenticated}
       <div class="user-wrap">
         <button class="nav-icon-link" onclick={() => userMenuOpen = !userMenuOpen} aria-label="User menu">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
         </button>
         {#if userMenuOpen}
           <div class="user-dropdown">
@@ -162,8 +162,8 @@
 
 <style>
   .nav-logo { height:24px; width:auto; display:block; }
-  .nav-icon-link { display:flex; align-items:center; color:var(--text-nav); text-decoration:none; background:none; border:none; font:inherit; cursor:pointer; padding:0; }
-  .nav-icon-link:hover { color:var(--nav-hover, var(--primary)); }
+  .nav-icon-link { display:flex; align-items:center; justify-content:center; width:30px; height:30px; color:var(--text-nav); text-decoration:none; background:none; border:none; font:inherit; cursor:pointer; padding:0; border-radius:6px; }
+  .nav-icon-link:hover { color:var(--nav-hover, var(--primary)); background:rgba(255,255,255,0.08); }
   .nav-icon-wrap { position:relative; display:flex; }
   .nav-icon-badge { position:absolute; top:-5px; right:-12px; background:var(--primary); color:var(--primary-text, white); font-size:0.5rem; font-weight:700; border-radius:8px; min-width:14px; height:14px; padding:0 3px; display:flex; align-items:center; justify-content:center; line-height:1; }
 
