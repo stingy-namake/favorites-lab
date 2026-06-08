@@ -46,6 +46,8 @@
 </script>
 
 <div class="hero">
+  <img src="/kishin-logo-white.png" alt="" class="hero-logo hero-logo-dark" />
+  <img src="/kishin-logo-black.png" alt="" class="hero-logo hero-logo-light" />
   <h1>Kishin Echoes</h1>
   <p>Browse our curated collection of products</p>
 </div>
@@ -100,6 +102,13 @@
 
 <style>
   .hero { text-align:center; padding:3.5rem 0 1rem; }
+  .hero-logo { height:80px; width:auto; margin-bottom:0.75rem; }
+  .hero-logo-dark { display:inline; }
+  .hero-logo-light { display:none; }
+  [data-theme="dark"] .hero-logo-dark { display:inline; }
+  [data-theme="dark"] .hero-logo-light { display:none; }
+  [data-theme="light"] .hero-logo-dark { display:none; }
+  [data-theme="light"] .hero-logo-light { display:inline; }
   .hero h1 { font-size:2.25rem; font-weight:800; letter-spacing:-0.03em; }
   .hero p { color:var(--text-muted); margin-top:0.5rem; font-size:0.95rem; }
 
@@ -135,6 +144,7 @@
   .view-more:hover { border-color:var(--primary); color:var(--primary); background:var(--primary-light); }
 
   @media (max-width:768px) {
+    .hero-logo { height:56px; }
     .hero h1 { font-size:1.75rem; }
     .cat-grid { grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:0.65rem; }
     .card-img { height:130px; padding:0.75rem; }

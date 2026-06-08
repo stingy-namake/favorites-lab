@@ -77,7 +77,9 @@
 </script>
 
 <nav class="nav">
-  <a href="/" class="nav-brand">Kishin Echoes</a>
+  <a href="/" class="nav-brand">
+    <img src="/kishin-logo-white.png" alt="Kishin Echoes" class="nav-logo" />
+  </a>
   <div class="nav-links">
     <a href="/products">PRODUCTS</a>
     {#if auth.isAuthenticated}
@@ -135,6 +137,7 @@
 </footer>
 
 <style>
+  .nav-logo { height:24px; width:auto; display:block; }
   .nav-link-btn { background:transparent; color:var(--text-nav); border:none; font:inherit; font-size:0.825rem; font-weight:500; letter-spacing:0.02em; padding:0; cursor:pointer; }
   .nav-link-btn:hover { color:var(--nav-hover, var(--primary)); }
   .footer { background:var(--nav-bg); padding:1.5rem 0; margin-top:auto; text-align:center; }
