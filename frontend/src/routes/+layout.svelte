@@ -17,6 +17,7 @@
   let theme = $state('dark');
   let accentOpen = $state(false);
   let cartOpen = $state(false);
+  let userMenuOpen = $state(false);
 
   const ACCENTS = [
     { id: 'orange', label: 'Orange', primary: '#f97316', hover: '#ea580c', light: '#fff7ed', lightDark: '#1c0a04' },
@@ -62,6 +63,7 @@
     });
     document.addEventListener('click', (e) => {
       if (accentOpen && !(e.target as HTMLElement)?.closest('.accent-wrap')) accentOpen = false;
+      if (userMenuOpen && !(e.target as HTMLElement)?.closest('.user-wrap')) userMenuOpen = false;
     });
   });
 
@@ -82,23 +84,21 @@
   </a>
   <div class="nav-links">
     <a href="/products">PRODUCTS</a>
-    {#if auth.isAuthenticated}
-      <button class="nav-icon-link" onclick={() => cartOpen = !cartOpen}>
-        <span class="nav-icon-wrap">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4zM3 6h18M16 10a4 4 0 0 1-8 0"/></svg>
-          {#if cart.count > 0}<span class="nav-icon-badge">{cart.count}</span>{/if}
-        </span>
-      </button>
-      <a href="/favorites" class="nav-icon-link">
-        <span class="nav-icon-wrap">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-          {#if favs.count > 0}<span class="nav-icon-badge">{favs.count}</span>{/if}
-        </span>
-      </a>
-      {#if auth.isAdmin}<a href="/admin">ADMIN</a>{/if}
-    {/if}
+    {#if auth.isAdmin}<a href="/admin">ADMIN</a>{/if}
   </div>
   <div class="nav-right">
+    <button class="nav-icon-link" onclick={() => cartOpen = !cartOpen} aria-label="Cart">
+      <span class="nav-icon-wrap">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4zM3 6h18M16 10a4 4 0 0 1-8 0"/></svg>
+        {#if cart.count > 0}<span class="nav-icon-badge">{cart.count}</span>{/if}
+      </span>
+    </button>
+    <a href="/favorites" class="nav-icon-link" aria-label="Favorites">
+      <span class="nav-icon-wrap">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        {#if favs.count > 0}<span class="nav-icon-badge">{favs.count}</span>{/if}
+      </span>
+    </a>
     <div class="accent-wrap">
       <button class="accent-trigger" onclick={() => accentOpen = !accentOpen} title="Accent color"></button>
       {#if accentOpen}
@@ -123,8 +123,17 @@
       {/if}
     </button>
     {#if auth.isAuthenticated}
-      <span class="nav-user">{auth.user?.name}</span>
-      <button class="nav-btn" onclick={handleLogout}>LOGOUT</button>
+      <div class="user-wrap">
+        <button class="nav-icon-link" onclick={() => userMenuOpen = !userMenuOpen} aria-label="User menu">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        </button>
+        {#if userMenuOpen}
+          <div class="user-dropdown">
+            <span class="user-dropdown-name">{auth.user?.name}</span>
+            <button class="user-dropdown-btn" onclick={handleLogout}>LOGOUT</button>
+          </div>
+        {/if}
+      </div>
     {:else}
       <a href="/auth/login"><button class="nav-btn">LOGIN</button></a>
       <a href="/auth/signup"><button class="nav-btn nav-btn-primary">SIGN UP</button></a>
@@ -157,6 +166,12 @@
   .nav-icon-link:hover { color:var(--nav-hover, var(--primary)); }
   .nav-icon-wrap { position:relative; display:flex; }
   .nav-icon-badge { position:absolute; top:-5px; right:-12px; background:var(--primary); color:var(--primary-text, white); font-size:0.5rem; font-weight:700; border-radius:8px; min-width:14px; height:14px; padding:0 3px; display:flex; align-items:center; justify-content:center; line-height:1; }
+
+  .user-wrap { position:relative; display:flex; }
+  .user-dropdown { position:absolute; top:100%; right:0; margin-top:6px; background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-lg); box-shadow:var(--shadow-lg); min-width:140px; z-index:200; padding:0.375rem; }
+  .user-dropdown-name { display:block; padding:0.375rem 0.5rem; font-size:0.8rem; color:var(--text); font-weight:500; white-space:nowrap; }
+  .user-dropdown-btn { width:100%; font-size:0.75rem; font-weight:600; padding:0.375rem 0.5rem; text-align:left; background:none; border:none; border-radius:var(--radius); cursor:pointer; color:var(--text-muted); }
+  .user-dropdown-btn:hover { background:var(--bg-alt); color:var(--danger); }
 
   main { flex:1; }
   .footer { background:var(--nav-bg); padding:1.5rem 0; text-align:center; }
