@@ -7,6 +7,7 @@
   import { getFavoritesStore } from '$lib/stores/favorites.svelte';
   import { getProductOverlay } from '$lib/stores/productOverlay.svelte';
   import { goto } from '$app/navigation';
+  import TopCarousel from '$lib/components/TopCarousel.svelte';
 
   const auth = getAuthStore();
   const cart = getCartStore();
@@ -55,6 +56,7 @@
 {#if loading}
   <p class="empty-state">Loading...</p>
 {:else}
+  <TopCarousel title="Top Rated" />
   {#each categories as cat}
     <section class="cat-section">
       <div class="cat-header">
