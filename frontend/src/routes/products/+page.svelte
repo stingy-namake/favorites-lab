@@ -10,7 +10,6 @@
   let totalPages = $state(1);
   let total = $state(0);
   let selectedCategory = $state('');
-  let search = $state('');
   let loading = $state(true);
   const LIMIT = 12;
 
@@ -23,7 +22,7 @@
     loading = true;
     page = p;
     try {
-      const res = await api.products.list({ page: p, limit: LIMIT, category: selectedCategory || undefined, q: search || undefined });
+      const res = await api.products.list({ page: p, limit: LIMIT, category: selectedCategory || undefined });
       products = res.items;
       totalPages = res.totalPages;
       total = res.total;
@@ -32,7 +31,6 @@
   }
 
   function filterCategory(cat: string) { selectedCategory = cat; loadPage(1); }
-  function handleSearch(e: Event) { search = (e.target as HTMLInputElement).value; loadPage(1); }
 </script>
 
 <div class="page-header">
@@ -41,7 +39,6 @@
 </div>
 
 <div class="filter-bar">
-  <input placeholder="Search..." value={search} oninput={handleSearch} style="max-width:250px;" />
   <button class={selectedCategory === '' ? 'primary' : 'secondary'} onclick={() => filterCategory('')}>All</button>
   {#each categories as cat}
     <button class={selectedCategory === cat ? 'primary' : 'secondary'} onclick={() => filterCategory(cat)}>{cat}</button>
@@ -51,7 +48,7 @@
 {#if loading}
   <p class="empty-state">Loading...</p>
 {:else if products.length === 0}
-  <p class="empty-state">No products match your search. <a href="/products">Clear filters</a></p>
+  <p class="empty-state">No products found.</p>
 {:else}
   <div class="product-grid">
     {#each products as product}
