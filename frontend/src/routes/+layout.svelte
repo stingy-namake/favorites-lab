@@ -53,7 +53,7 @@
   }
 
   onMount(() => {
-    theme = localStorage.getItem('theme') || 'dark';
+    theme = localStorage.getItem('theme') || 'light';
     document.documentElement.setAttribute('data-theme', theme);
     const saved = localStorage.getItem('accent') || 'orange';
     applyAccent(saved);

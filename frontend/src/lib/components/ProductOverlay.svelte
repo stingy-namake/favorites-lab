@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { fade, scale } from 'svelte/transition';
   import { getProductOverlay } from '$lib/stores/productOverlay.svelte';
   import { getAuthStore } from '$lib/stores/auth.svelte';
   import { getCartStore } from '$lib/stores/cart.svelte';
@@ -22,9 +23,9 @@
 
 {#if p}
   <!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
-  <div class="overlay" onclick={close}>
+  <div class="overlay" transition:fade={{ duration: 150 }} onclick={close}>
     <!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
-    <div class="overlay-content" onclick={(e) => e.stopPropagation()}>
+    <div class="overlay-content" transition:scale={{ start: 0.95, duration: 150 }} onclick={(e) => e.stopPropagation()}>
       <button class="overlay-close" onclick={close} aria-label="Close">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
       </button>
